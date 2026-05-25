@@ -34,10 +34,10 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
   };
 
   return (
-    <div className='fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 overflow-hidden'>
-      <div className='bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col shadow-2xl animate-in'>
-        {/* Header con degradado arcoíris */}
-        <div className={`${getRainbowGradient()} p-6 rounded-t-2xl sm:rounded-t-2xl relative`}>
+    <div className='fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50'>
+      <div className='bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col shadow-2xl animate-in overflow-hidden'>
+        {/* Header con degradado arcoíris - flex-shrink-0 para que no se comprima */}
+        <div className={`flex-shrink-0 ${getRainbowGradient()} p-6 rounded-t-2xl sm:rounded-t-2xl relative`}>
           <button
             onClick={onClose}
             className='absolute top-4 right-4 z-10 bg-white/30 hover:bg-white/50 rounded-full p-2 transition-colors shadow-lg'
@@ -85,8 +85,8 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className='flex border-b'>
+        {/* Tabs - flex-shrink-0 para que no se comprima */}
+        <div className='flex-shrink-0 flex border-b bg-white'>
           {['info', 'comments', 'photos'].map((tab) => (
             <button
               key={tab}
