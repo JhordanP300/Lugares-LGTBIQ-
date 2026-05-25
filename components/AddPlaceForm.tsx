@@ -106,10 +106,10 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
   if (!isOpen) return null;
 
   return (
-    <div className='fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 overflow-hidden'>
-      <div className='bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col shadow-2xl animate-in'>
-        {/* Header */}
-        <div className='bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 p-6 rounded-t-2xl sm:rounded-t-2xl relative'>
+    <div className='fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50'>
+      <div className='bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col shadow-2xl animate-in overflow-hidden'>
+        {/* Header - flex-shrink-0 asegura que no se comprima */}
+        <div className='flex-shrink-0 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 p-6 rounded-t-2xl sm:rounded-t-2xl relative'>
           <button
             onClick={onClose}
             className='absolute top-4 right-4 z-10 bg-white/30 hover:bg-white/50 rounded-full p-2 transition-colors shadow-lg'
@@ -118,7 +118,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
           >
             <X size={24} className='text-white' />
           </button>
-          <h2 className='text-white text-2xl font-bold flex items-center gap-2'>
+          <h2 className='text-white text-2xl font-bold flex items-center gap-2 pr-12'>
             <Plus size={28} />
             Agregar Nuevo Lugar
           </h2>
@@ -127,8 +127,8 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
           </p>
         </div>
 
-        {/* Indicador de pasos */}
-        <div className='flex items-center justify-between px-6 pt-4 pb-2'>
+        {/* Indicador de pasos - flex-shrink-0 también */}
+        <div className='flex-shrink-0 flex items-center justify-between px-6 pt-4 pb-2 bg-white'>
           {[1, 2, 3].map((s) => (
             <div key={s} className='flex items-center'>
               <button
@@ -373,8 +373,8 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
           )}
         </form>
 
-        {/* Botones de acción - Responsivos en móvil */}
-        <div className='flex flex-wrap gap-2 sm:gap-3 p-4 sm:p-6 border-t bg-gray-50'>
+        {/* Botones de acción - flex-shrink-0 para que no se compriman */}
+        <div className='flex-shrink-0 flex flex-wrap gap-2 sm:gap-3 p-4 sm:p-6 border-t bg-gray-50'>
           {step > 1 && (
             <button
               onClick={() => setStep(step - 1)}
