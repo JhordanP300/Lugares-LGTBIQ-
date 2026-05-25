@@ -109,31 +109,31 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
     <div className='fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50'>
       <div className='bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col shadow-2xl animate-in overflow-hidden'>
         {/* Header - flex-shrink-0 asegura que no se comprima */}
-        <div className='flex-shrink-0 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 p-6 rounded-t-2xl sm:rounded-t-2xl relative'>
+        <div className='flex-shrink-0 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 p-3 sm:p-6 rounded-t-2xl sm:rounded-t-2xl relative'>
           <button
             onClick={onClose}
-            className='absolute top-4 right-4 z-10 bg-white/30 hover:bg-white/50 rounded-full p-2 transition-colors shadow-lg'
+            className='absolute top-2 right-2 sm:top-4 sm:right-4 z-10 bg-white/30 hover:bg-white/50 rounded-full p-1 sm:p-2 transition-colors shadow-lg'
             aria-label='Cerrar'
             title='Cerrar'
           >
-            <X size={24} className='text-white' />
+            <X size={20} className='text-white sm:w-6 sm:h-6' />
           </button>
-          <h2 className='text-white text-2xl font-bold flex items-center gap-2 pr-12'>
-            <Plus size={28} />
+          <h2 className='text-white text-lg sm:text-2xl font-bold flex items-center gap-1 sm:gap-2 pr-10 sm:pr-12'>
+            <Plus size={24} className='sm:w-7 sm:h-7' />
             Agregar Nuevo Lugar
           </h2>
-          <p className='text-white/90 text-sm mt-2'>
+          <p className='text-white/90 text-xs sm:text-sm mt-1 sm:mt-2'>
             Ayuda a la comunidad LGBTIQ+ a encontrar espacios seguros
           </p>
         </div>
 
         {/* Indicador de pasos - flex-shrink-0 también */}
-        <div className='flex-shrink-0 flex items-center justify-between px-6 pt-4 pb-2 bg-white'>
+        <div className='flex-shrink-0 flex items-center justify-between px-3 sm:px-6 pt-2 sm:pt-4 pb-1 sm:pb-2 bg-white gap-1 sm:gap-0'>
           {[1, 2, 3].map((s) => (
-            <div key={s} className='flex items-center'>
+            <div key={s} className='flex items-center flex-1 sm:flex-none'>
               <button
                 onClick={() => s < step && setStep(s)}
-                className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm transition-colors ${
+                className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm transition-colors ${
                   s === step
                     ? 'bg-purple-600 text-white'
                     : s < step
@@ -145,7 +145,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
               </button>
               {s < 3 && (
                 <div
-                  className={`h-1 w-12 mx-2 transition-colors ${
+                  className={`h-1 flex-1 mx-1 sm:w-12 sm:mx-2 transition-colors ${
                     s < step ? 'bg-green-500' : 'bg-gray-200'
                   }`}
                 />
@@ -155,7 +155,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
         </div>
 
         {/* Contenido del formulario */}
-        <form onSubmit={handleSubmit} className='overflow-y-auto flex-1 p-6 space-y-4'>
+        <form onSubmit={handleSubmit} className='overflow-y-auto flex-1 p-3 sm:p-6 space-y-3 sm:space-y-4'>
           {/* PASO 1: Información Básica */}
           {step === 1 && (
             <div className='space-y-4'>
