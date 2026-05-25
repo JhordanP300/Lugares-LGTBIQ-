@@ -2,8 +2,9 @@
 
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import { Menu, X, Info, Plus } from 'lucide-react';
+import { Menu, X, Info, Plus, Heart } from 'lucide-react';
 import AddPlaceForm from '@/app/components/AddPlaceForm';
+import Favorites from '@/app/components/Favorites';
 import { usePlaces } from '@/app/context/PlacesContext';
 
 // Cargamos el mapa de forma dinámica para evitar problemas con SSR
@@ -15,6 +16,8 @@ const Map = dynamic(() => import('@/app/components/Map'), {
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAddPlaceOpen, setIsAddPlaceOpen] = useState(false);
+  // Estado para controlar qué pestaña del sidebar está activa (inicio o favoritos)
+  const [sidebarTab, setSidebarTab] = useState<'inicio' | 'favoritos'>('inicio');
   const { places, addPlace } = usePlaces();
 
   return (
@@ -34,7 +37,7 @@ export default function Home() {
       {/* Sidebar con información */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className='fixed top-4 left-4 z-40 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-white p-2 rounded-lg md:hidden shadow-lg hover:shadow-xl transition-shadow'
+        className='fixed top-4 right-4 z-40 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-white p-2 rounded-lg md:hidden shadow-lg hover:shadow-xl transition-shadow'
       >
         {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
@@ -51,8 +54,37 @@ export default function Home() {
           <p className='text-sm opacity-90'>Espacios LGBTIQ+ en Medellín</p>
         </div>
 
-        {/* Contenido */}
-        <div className='p-6 space-y-6'>
+        {/* Pestañas del Sidebar - Inicio y Favoritos */}
+        <div className='flex border-b bg-gray-50 sticky top-0 z-10'>
+          <button
+            onClick={() => setSidebarTab('inicio')}
+            className={`flex-1 py-3 px-4 text-center font-medium text-sm transition-colors flex items-center justify-center gap-2 ${
+              sidebarTab === 'inicio'
+                ? 'border-b-2 border-purple-600 text-purple-600 bg-white'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+            title='Ver información general'
+          >
+            <Info size={16} />
+            Inicio
+          </button>
+          <button
+            onClick={() => setSidebarTab('favoritos')}
+            className={`flex-1 py-3 px-4 text-center font-medium text-sm transition-colors flex items-center justify-center gap-2 ${
+              sidebarTab === 'favoritos'
+                ? 'border-b-2 border-red-500 text-red-600 bg-white'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+            title='Ver mis favoritos'
+          >
+            <Heart size={16} />
+            Favoritos
+          </button>
+        </div>
+
+        {/* Contenido - Pestaña Inicio */}
+        {sidebarTab === 'inicio' && (
+          <div className='p-6 space-y-6'>
           {/* Bienvenida */}
           <div className='bg-purple-50 rounded-lg p-4 border-l-4 border-purple-600'>
             <h2 className='font-bold text-gray-900 mb-2 flex items-center gap-2'>
@@ -158,6 +190,17 @@ export default function Home() {
             </p>
           </div>
         </div>
+        )}
+
+        {/* Contenido - Pestaña Favoritos */}
+        {sidebarTab === 'favoritos' && (
+          <Favorites
+            onSelectPlace={(placeId) => {
+              // Aquí se puede agregar lógica para seleccionar y centrar el mapa en un lugar
+              console.log('Seleccionado lugar:', placeId);
+            }}
+          />
+        )}
       </div>
 
       {/* Overlay para cerrar sidebar en mobile */}
@@ -183,7 +226,7 @@ export default function Home() {
           addPlace(newPlace);
           alert('¡Lugar agregado exitosamente! Gracias por contribuir a la comunidad.');
         }}
-      />
+      /> del mapa y
     </div>
   );
 }

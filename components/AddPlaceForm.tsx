@@ -83,7 +83,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
       alert('Por favor, completa los campos obligatorios');
       return;
     }
-
+    // Aquí podrías agregar validaciones adicionales, como formato de teléfono o URL
     onAddPlace(formData);
     setFormData({
       name: '',
@@ -106,13 +106,15 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
   if (!isOpen) return null;
 
   return (
-    <div className='fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50'>
-      <div className='bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl sm:max-h-[90vh] flex flex-col shadow-2xl animate-in'>
+    <div className='fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 overflow-hidden'>
+      <div className='bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col shadow-2xl animate-in'>
         {/* Header */}
         <div className='bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 p-6 rounded-t-2xl sm:rounded-t-2xl relative'>
           <button
             onClick={onClose}
-            className='absolute top-4 right-4 bg-white/20 hover:bg-white/30 rounded-full p-2 transition-colors'
+            className='absolute top-4 right-4 z-10 bg-white/30 hover:bg-white/50 rounded-full p-2 transition-colors shadow-lg'
+            aria-label='Cerrar'
+            title='Cerrar'
           >
             <X size={24} className='text-white' />
           </button>
@@ -246,24 +248,29 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
               </div>
 
               <div>
-                <label className='block text-sm font-semibold text-gray-700 mb-1'>
+                <label className='block text-sm font-semibold text-gray-700 mb-2'>
                   Calificación de Seguridad
                 </label>
-                <div className='flex gap-2'>
+                {/* Botones de estrellas - más responsive en móvil */}
+                <div className='flex flex-wrap gap-2 items-center'>
                   {[1, 2, 3, 4, 5].map((rating) => (
                     <button
                       key={rating}
                       type='button'
                       onClick={() => setFormData({ ...formData, safetyRating: rating })}
-                      className='transition-transform hover:scale-110'
+                      className='transition-transform hover:scale-125 active:scale-95 p-1 cursor-pointer'
+                      title={`Calificación: ${rating} estrellas`}
+                      aria-label={`Seleccionar ${rating} estrellas`}
                     >
-                      <span
-                        className={`text-3xl ${
-                          rating <= formData.safetyRating ? '⭐' : '☆'
-                        }`}
-                      />
+                      <span className='text-2xl sm:text-3xl'>
+                        {rating <= formData.safetyRating ? '⭐' : '☆'}
+                      </span>
                     </button>
                   ))}
+                  {/* Mostrar número de estrellas seleccionadas */}
+                  <span className='text-sm text-gray-600 ml-2'>
+                    {formData.safetyRating}/5 estrellas
+                  </span>
                 </div>
               </div>
             </div>
@@ -366,12 +373,13 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
           )}
         </form>
 
-        {/* Botones de acción */}
-        <div className='flex gap-3 p-6 border-t'>
+        {/* Botones de acción - Responsivos en móvil */}
+        <div className='flex flex-wrap gap-2 sm:gap-3 p-4 sm:p-6 border-t bg-gray-50'>
           {step > 1 && (
             <button
               onClick={() => setStep(step - 1)}
-              className='px-6 py-2 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition-colors'
+              className='flex-1 min-w-[100px] px-3 sm:px-6 py-2 border border-gray-300 rounded-lg font-semibold text-xs sm:text-base text-gray-700 hover:bg-gray-100 transition-colors'
+              title='Ir al paso anterior'
             >
               ← Anterior
             </button>
@@ -380,7 +388,8 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
           {step < 3 ? (
             <button
               onClick={() => setStep(step + 1)}
-              className='flex-1 px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold hover:shadow-lg transition-shadow'
+              className='flex-1 min-w-[100px] px-3 sm:px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold text-xs sm:text-base hover:shadow-lg transition-shadow'
+              title='Ir al siguiente paso'
             >
               Siguiente →
             </button>
@@ -388,15 +397,17 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
             <>
               <button
                 onClick={onClose}
-                className='px-6 py-2 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition-colors'
+                className='flex-1 min-w-[100px] px-3 sm:px-6 py-2 border border-gray-300 rounded-lg font-semibold text-xs sm:text-base text-gray-700 hover:bg-gray-100 transition-colors'
+                title='Cancelar el formulario'
               >
                 Cancelar
               </button>
               <button
                 onClick={handleSubmit}
-                className='flex-1 px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold hover:shadow-lg transition-shadow'
+                className='flex-1 min-w-[100px] px-3 sm:px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold text-xs sm:text-base hover:shadow-lg transition-shadow'
+                title='Enviar el formulario'
               >
-                ✓ Agregar Lugar
+                ✓ Agregar
               </button>
             </>
           )}

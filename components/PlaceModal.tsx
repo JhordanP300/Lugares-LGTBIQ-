@@ -5,6 +5,8 @@ import { Place, categoryLabels } from '@/app/lib/places';
 import { X, Phone, Globe, Clock, MapPin, Star, Heart } from 'lucide-react';
 import Comments from './Comments';
 import PhotoGallery from './PhotoGallery';
+import Toast from './Toast';
+import { useFavorites } from '@/app/hooks/useFavorites';
 
 interface PlaceModalProps {
   place: Place;
@@ -14,7 +16,11 @@ interface PlaceModalProps {
 
 export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) {
   const [activeTab, setActiveTab] = useState<'info' | 'comments' | 'photos'>('info');
-  const [isFavorite, setIsFavorite] = useState(false);
+  // Usar el hook de favoritos en lugar de useState local
+  const { isFavorite, toggleFavorite, addFavorite, removeFavorite } = useFavorites();
+  const [showFavoriteToast, setShowFavoriteToast] = useState(false);
+  
+  const isCurrentFavorite = isFavorite(place.id);
 
   if (!isOpen) return null;
 
@@ -28,30 +34,38 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
   };
 
   return (
-    <div className='fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50'>
-      <div className='bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl sm:max-h-[90vh] flex flex-col shadow-2xl animate-in'>
+    <div className='fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 overflow-hidden'>
+      <div className='bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col shadow-2xl animate-in'>
         {/* Header con degradado arcoíris */}
         <div className={`${getRainbowGradient()} p-6 rounded-t-2xl sm:rounded-t-2xl relative`}>
           <button
             onClick={onClose}
-            className='absolute top-4 right-4 bg-white/20 hover:bg-white/30 rounded-full p-2 transition-colors'
+            className='absolute top-4 right-4 z-10 bg-white/30 hover:bg-white/50 rounded-full p-2 transition-colors shadow-lg'
+            aria-label='Cerrar'
+            title='Cerrar'
           >
             <X size={24} className='text-white' />
           </button>
           
-          <div className='flex items-start justify-between pr-10'>
-            <div>
+          <div className='flex items-start justify-between pr-12'>
+            <div className='flex-1'>
               <p className='text-white/90 text-sm mb-2'>{categoryLabels[place.category]}</p>
-              <h2 className='text-white text-2xl font-bold'>{place.name}</h2>
+              <h2 className='text-white text-xl sm:text-2xl font-bold'>{place.name}</h2>
               <p className='text-white/90 text-sm mt-2'>{place.barrio}</p>
             </div>
             <button
-              onClick={() => setIsFavorite(!isFavorite)}
-              className='bg-white/20 hover:bg-white/30 rounded-full p-2 transition-colors'
+              onClick={() => {
+                // Usar el hook para agregar/remover de favoritos
+                toggleFavorite(place);
+                setShowFavoriteToast(true);
+              }}
+              className='flex-shrink-0 ml-2 bg-white/30 hover:bg-white/50 rounded-full p-2 transition-colors shadow-lg'
+              aria-label={isCurrentFavorite ? 'Remover de favoritos' : 'Agregar a favoritos'}
+              title={isCurrentFavorite ? 'Remover de favoritos' : 'Agregar a favoritos'}
             >
               <Heart
                 size={24}
-                className={isFavorite ? 'fill-white text-white' : 'text-white'}
+                className={isCurrentFavorite ? 'fill-white text-white' : 'text-white'}
               />
             </button>
           </div>
@@ -180,6 +194,16 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
           {activeTab === 'photos' && <PhotoGallery placeId={place.id} />}
         </div>
       </div>
+
+      {/* Toast de notificación cuando se agrega/remueve de favoritos */}
+      {showFavoriteToast && (
+        <Toast
+          message={isCurrentFavorite ? '❤️ Agregado a favoritos' : '💔 Removido de favoritos'}
+          type='success'
+          duration={3000}
+          onClose={() => setShowFavoriteToast(false)}
+        />
+      )}
     </div>
   );
 }
