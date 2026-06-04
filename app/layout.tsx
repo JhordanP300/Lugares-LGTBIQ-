@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { PlacesProvider } from "@/app/context/PlacesContext";
+import Providers from "@/app/providers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -37,9 +37,9 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="h-full flex flex-col overflow-hidden">
-        <PlacesProvider>
+        <Providers>
           {children}
-        </PlacesProvider>
+        </Providers>
       </body>
     </html>
   );

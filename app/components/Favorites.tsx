@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Heart, MapPin, Star, X, MessageCircle, Image as ImageIcon } from 'lucide-react';
+import { Heart, MapPin, Star, MessageCircle, Image as ImageIcon } from 'lucide-react';
 import { useFavorites } from '@/app/hooks/useFavorites';
 import { categoryLabels } from '@/app/lib/places';
 

@@ -17,11 +17,10 @@ interface PlaceModalProps {
 export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) {
   const [activeTab, setActiveTab] = useState<'info' | 'comments' | 'photos'>('info');
   // Usar el hook de favoritos en lugar de useState local
-  const { isFavorite, toggleFavorite, addFavorite, removeFavorite } = useFavorites();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [showFavoriteToast, setShowFavoriteToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
   
-  const isCurrentFavorite = isFavorite(place.id);
-
   if (!isOpen) return null;
 
   const openGoogleMaps = () => {
@@ -55,17 +54,18 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
             </div>
             <button
               onClick={() => {
-                // Usar el hook para agregar/remover de favoritos
+                const wasFavorite = isFavorite(place.id);
                 toggleFavorite(place);
+                setToastMessage(wasFavorite ? '💔 Removido de favoritos' : '❤️ Agregado a favoritos');
                 setShowFavoriteToast(true);
               }}
               className='flex-shrink-0 ml-2 bg-white/30 hover:bg-white/50 rounded-full p-2 transition-colors shadow-lg'
-              aria-label={isCurrentFavorite ? 'Remover de favoritos' : 'Agregar a favoritos'}
-              title={isCurrentFavorite ? 'Remover de favoritos' : 'Agregar a favoritos'}
+              aria-label={isFavorite(place.id) ? 'Remover de favoritos' : 'Agregar a favoritos'}
+              title={isFavorite(place.id) ? 'Remover de favoritos' : 'Agregar a favoritos'}
             >
               <Heart
                 size={24}
-                className={isCurrentFavorite ? 'fill-white text-white' : 'text-white'}
+                className={isFavorite(place.id) ? 'fill-white text-white' : 'text-white'}
               />
             </button>
           </div>
@@ -87,10 +87,10 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
 
         {/* Tabs - flex-shrink-0 para que no se comprima */}
         <div className='flex-shrink-0 flex border-b bg-white'>
-          {['info', 'comments', 'photos'].map((tab) => (
+          {(['info', 'comments', 'photos'] as const).map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab as any)}
+              onClick={() => setActiveTab(tab)}
               className={`flex-1 py-3 text-center font-medium transition-colors ${
                 activeTab === tab
                   ? 'border-b-2 border-purple-600 text-purple-600'
@@ -198,7 +198,7 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
       {/* Toast de notificación cuando se agrega/remueve de favoritos */}
       {showFavoriteToast && (
         <Toast
-          message={isCurrentFavorite ? '❤️ Agregado a favoritos' : '💔 Removido de favoritos'}
+          message={toastMessage}
           type='success'
           duration={3000}
           onClose={() => setShowFavoriteToast(false)}

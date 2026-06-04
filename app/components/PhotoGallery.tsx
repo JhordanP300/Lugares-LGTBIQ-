@@ -14,21 +14,46 @@ interface Photo {
   date: string;
 }
 
+const STORAGE_KEY = 'lugares_fotos';
+
+function loadAllPhotos(): Record<number, Photo[]> {
+  try {
+    if (typeof window !== 'undefined') {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : {};
+    }
+  } catch {
+    // ignore
+  }
+  return {};
+}
+
+function saveAllPhotos(photos: Record<number, Photo[]>) {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(photos));
+    }
+  } catch {
+    // ignore
+  }
+}
+
+const DEFAULT_PHOTOS: Record<number, Photo[]> = {
+  1: [
+    { id: 1, url: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=500&h=400', author: 'Laura', date: '2024-05-12' },
+    { id: 2, url: 'https://images.unsplash.com/photo-1491841573634-28140f7ced15?w=500&h=400', author: 'Juan', date: '2024-05-10' },
+  ],
+};
+
+function getInitialPhotos(): Record<number, Photo[]> {
+  const saved = loadAllPhotos();
+  return { ...DEFAULT_PHOTOS, ...saved };
+}
+
 export default function PhotoGallery({ placeId }: PhotoGalleryProps) {
-  const [photos, setPhotos] = useState<Photo[]>([
-    {
-      id: 1,
-      url: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=500&h=400',
-      author: 'Laura',
-      date: '2024-05-12',
-    },
-    {
-      id: 2,
-      url: 'https://images.unsplash.com/photo-1491841573634-28140f7ced15?w=500&h=400',
-      author: 'Juan',
-      date: '2024-05-10',
-    },
-  ]);
+  const [allPhotos, setAllPhotos] = useState<Record<number, Photo[]>>(getInitialPhotos);
+
+  const photos = allPhotos[placeId] || [];
 
   const [uploading, setUploading] = useState(false);
   const [authorName, setAuthorName] = useState('');
@@ -44,7 +69,6 @@ export default function PhotoGallery({ placeId }: PhotoGalleryProps) {
 
     setUploading(true);
 
-    // Simular carga de archivo
     setTimeout(() => {
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -54,7 +78,14 @@ export default function PhotoGallery({ placeId }: PhotoGalleryProps) {
           author: authorName,
           date: new Date().toISOString().split('T')[0],
         };
-        setPhotos([newPhoto, ...photos]);
+        setAllPhotos((prev) => {
+          const updated = {
+            ...prev,
+            [placeId]: [newPhoto, ...(prev[placeId] || [])],
+          };
+          saveAllPhotos(updated);
+          return updated;
+        });
         setAuthorName('');
         setUploading(false);
       };
@@ -63,7 +94,14 @@ export default function PhotoGallery({ placeId }: PhotoGalleryProps) {
   };
 
   const handleDeletePhoto = (id: number) => {
-    setPhotos(photos.filter((p) => p.id !== id));
+    setAllPhotos((prev) => {
+      const updated = {
+        ...prev,
+        [placeId]: (prev[placeId] || []).filter((p) => p.id !== id),
+      };
+      saveAllPhotos(updated);
+      return updated;
+    });
   };
 
   return (
@@ -109,6 +147,7 @@ export default function PhotoGallery({ placeId }: PhotoGalleryProps) {
                 className='relative group cursor-pointer overflow-hidden rounded-lg aspect-square'
                 onClick={() => setSelectedImage(photo)}
               >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={photo.url}
                   alt={`Foto por ${photo.author}`}
@@ -152,6 +191,7 @@ export default function PhotoGallery({ placeId }: PhotoGalleryProps) {
             >
               <X size={24} className='text-white' />
             </button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={selectedImage.url}
               alt={`Foto por ${selectedImage.author}`}

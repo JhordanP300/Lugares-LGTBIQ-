@@ -2,10 +2,12 @@
 
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import { Menu, X, Info, Plus, Heart } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Menu, X, Info, Plus, Heart, LogIn, LogOut, User, UserPlus } from 'lucide-react';
 import AddPlaceForm from '@/app/components/AddPlaceForm';
 import Favorites from '@/app/components/Favorites';
 import { usePlaces } from '@/app/context/PlacesContext';
+import { useAuth } from '@/app/context/AuthContext';
 
 // Cargamos el mapa de forma dinámica para evitar problemas con SSR
 const Map = dynamic(() => import('@/app/components/Map'), {
@@ -16,9 +18,10 @@ const Map = dynamic(() => import('@/app/components/Map'), {
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAddPlaceOpen, setIsAddPlaceOpen] = useState(false);
-  // Estado para controlar qué pestaña del sidebar está activa (inicio o favoritos)
   const [sidebarTab, setSidebarTab] = useState<'inicio' | 'favoritos'>('inicio');
   const { places, addPlace } = usePlaces();
+  const { user, profile, loading, signOut } = useAuth();
+  const router = useRouter();
 
   return (
     <div className='w-full h-screen relative overflow-hidden'>
@@ -27,9 +30,15 @@ export default function Home() {
 
       {/* Botón flotante para agregar lugar */}
       <button
-        onClick={() => setIsAddPlaceOpen(true)}
+        onClick={() => {
+          if (!user) {
+            router.push('/auth/login');
+            return;
+          }
+          setIsAddPlaceOpen(true);
+        }}
         className='fixed bottom-20 right-4 z-40 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-white p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center gap-2'
-        title='Agregar nuevo lugar'
+        title={user ? 'Agregar nuevo lugar' : 'Inicia sesión para agregar lugares'}
       >
         <Plus size={24} />
       </button>
@@ -52,6 +61,51 @@ export default function Home() {
         <div className='bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 p-6 text-white'>
           <h1 className='text-2xl font-bold mb-2'>🌈 Lugares Seguros</h1>
           <p className='text-sm opacity-90'>Espacios LGBTIQ+ en Medellín</p>
+        </div>
+
+        {/* Auth section */}
+        <div className='px-4 py-3 border-b bg-gray-50'>
+          {loading ? (
+            <div className='text-xs text-gray-500 text-center py-1'>Cargando...</div>
+          ) : user ? (
+            <div className='flex items-center justify-between'>
+              <div className='flex items-center gap-2 min-w-0'>
+                <div className='w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0'>
+                  <User size={16} className='text-purple-600' />
+                </div>
+                <div className='min-w-0'>
+                  <p className='text-sm font-semibold text-gray-900 truncate'>
+                    {profile?.name || user.email?.split('@')[0]}
+                  </p>
+                  <p className='text-xs text-gray-500 truncate'>{user.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={signOut}
+                className='p-2 text-gray-400 hover:text-red-600 transition-colors flex-shrink-0'
+                title='Cerrar sesión'
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
+          ) : (
+            <div className='space-y-2'>
+              <button
+                onClick={() => router.push('/auth/register')}
+                className='w-full flex items-center justify-center gap-2 py-2 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-sm font-semibold hover:shadow-lg transition-shadow'
+              >
+                <UserPlus size={16} />
+                Regístrate
+              </button>
+              <button
+                onClick={() => router.push('/auth/login')}
+                className='w-full flex items-center justify-center gap-2 py-2 px-4 border border-purple-600 text-purple-600 rounded-lg text-sm font-semibold hover:bg-purple-50 transition-colors'
+              >
+                <LogIn size={16} />
+                Iniciar sesión
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Pestañas del Sidebar - Inicio y Favoritos */}
@@ -131,6 +185,10 @@ export default function Home() {
           {/* Botón para agregar lugar */}
           <button
             onClick={() => {
+              if (!user) {
+                router.push('/auth/login');
+                return;
+              }
               setIsAddPlaceOpen(true);
               setSidebarOpen(false);
             }}
@@ -226,7 +284,7 @@ export default function Home() {
           addPlace(newPlace);
           alert('¡Lugar agregado exitosamente! Gracias por contribuir a la comunidad.');
         }}
-      /> del mapa y
+      />
     </div>
   );
 }

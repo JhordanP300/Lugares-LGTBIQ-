@@ -15,23 +15,46 @@ interface Comment {
   date: string;
 }
 
+const STORAGE_KEY = 'lugares_comentarios';
+
+function loadAllComments(): Record<number, Comment[]> {
+  try {
+    if (typeof window !== 'undefined') {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : {};
+    }
+  } catch {
+    // ignore
+  }
+  return {};
+}
+
+function saveAllComments(comments: Record<number, Comment[]>) {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(comments));
+    }
+  } catch {
+    // ignore
+  }
+}
+
+const DEFAULT_COMMENTS: Record<number, Comment[]> = {
+  1: [
+    { id: 1, author: 'María', text: 'Excelente lugar, muy seguro y acogedor. El personal es muy atento.', rating: 5, date: '2024-05-10' },
+    { id: 2, author: 'Carlos', text: 'Me siento muy cómodo aquí. Recomendado 100%', rating: 5, date: '2024-05-08' },
+  ],
+};
+
+function getInitialComments(): Record<number, Comment[]> {
+  const saved = loadAllComments();
+  return { ...DEFAULT_COMMENTS, ...saved };
+}
+
 export default function Comments({ placeId }: CommentsProps) {
-  const [comments, setComments] = useState<Comment[]>([
-    {
-      id: 1,
-      author: 'María',
-      text: 'Excelente lugar, muy seguro y acogedor. El personal es muy atento.',
-      rating: 5,
-      date: '2024-05-10',
-    },
-    {
-      id: 2,
-      author: 'Carlos',
-      text: 'Me siento muy cómodo aquí. Recomendado 100%',
-      rating: 5,
-      date: '2024-05-08',
-    },
-  ]);
+  const [allComments, setAllComments] = useState<Record<number, Comment[]>>(getInitialComments);
+
+  const comments = allComments[placeId] || [];
 
   const [newComment, setNewComment] = useState('');
   const [newRating, setNewRating] = useState(5);
@@ -53,14 +76,28 @@ export default function Comments({ placeId }: CommentsProps) {
       date: new Date().toISOString().split('T')[0],
     };
 
-    setComments([comment, ...comments]);
+    setAllComments((prev) => {
+      const updated = {
+        ...prev,
+        [placeId]: [comment, ...(prev[placeId] || [])],
+      };
+      saveAllComments(updated);
+      return updated;
+    });
     setNewComment('');
     setAuthorName('');
     setNewRating(5);
   };
 
   const handleDeleteComment = (id: number) => {
-    setComments(comments.filter((c) => c.id !== id));
+    setAllComments((prev) => {
+      const updated = {
+        ...prev,
+        [placeId]: (prev[placeId] || []).filter((c) => c.id !== id),
+      };
+      saveAllComments(updated);
+      return updated;
+    });
   };
 
   return (

@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, MapPin, Plus } from 'lucide-react';
-import { Place, categoryLabels, categoryColors } from '@/app/lib/places';
+import { X, Plus } from 'lucide-react';
+import { Place } from '@/app/lib/places';
 
 interface AddPlaceFormProps {
   isOpen: boolean;
@@ -27,7 +27,6 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
   });
 
   const [step, setStep] = useState(1); // 1: básico, 2: contacto, 3: accesibilidad
-  const [showMap, setShowMap] = useState(false);
 
   const categories = [
     { value: 'cafe', label: 'Café' },

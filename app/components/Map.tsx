@@ -6,7 +6,7 @@ import { divIcon } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
 import 'leaflet-defaulticon-compatibility';
-import { MEDELLIN_CENTER, categoryColors } from '@/app/lib/places';
+import { MEDELLIN_CENTER, categoryColors, Place } from '@/app/lib/places';
 import { usePlaces } from '@/app/context/PlacesContext';
 import PlaceModal from './PlaceModal';
 
@@ -55,10 +55,10 @@ const getCategoryEmoji = (category: string): string => {
 
 export default function Map() {
   const { places } = usePlaces();
-  const [selectedPlace, setSelectedPlace] = useState<any>(null);
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleMarkerClick = (place: any) => {
+  const handleMarkerClick = (place: Place) => {
     setSelectedPlace(place);
     setIsModalOpen(true);
   };
