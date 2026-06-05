@@ -8,7 +8,7 @@ interface UserProfile {
   id: string;
   name: string;
   avatar_url: string | null;
-  role: 'user' | 'moderator' | 'admin';
+  role: 'user' | 'admin';
   created_at: string;
 }
 
@@ -20,6 +20,7 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
   signUpWithEmail: (email: string, password: string, name: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
+  updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -108,6 +109,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(null);
   }, [supabase]);
 
+  const updateProfile = useCallback(async (updates: Partial<UserProfile>) => {
+    if (!user) return;
+    const { error } = await supabase
+      .from('users')
+      .update(updates)
+      .eq('id', user.id);
+    if (!error && profile) {
+      setProfile({ ...profile, ...updates });
+    }
+  }, [user, profile, supabase]);
+
   const value = useMemo(() => ({
     user,
     profile,
@@ -116,7 +128,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signInWithEmail,
     signUpWithEmail,
     signOut,
-  }), [user, profile, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signOut]);
+    updateProfile,
+  }), [user, profile, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signOut, updateProfile]);
 
   return (
     <AuthContext.Provider value={value}>

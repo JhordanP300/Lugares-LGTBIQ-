@@ -137,3 +137,54 @@ export async function deletePhoto(id: string, userId: string): Promise<boolean> 
 
   return !error;
 }
+
+export async function adminDeletePhoto(id: string): Promise<boolean> {
+  const supabase = createClient();
+
+  const { data: photo } = await supabase
+    .from('photos')
+    .select('url')
+    .eq('id', id)
+    .single();
+
+  if (photo) {
+    const urlParts = photo.url.split('/');
+    const bucketIndex = urlParts.indexOf(BUCKET_NAME);
+    if (bucketIndex !== -1) {
+      const filePath = urlParts.slice(bucketIndex + 1).join('/');
+      await supabase.storage.from(BUCKET_NAME).remove([filePath]);
+    }
+  }
+
+  const { error } = await supabase
+    .from('photos')
+    .delete()
+    .eq('id', id);
+
+  return !error;
+}
+
+export async function fetchAllPhotos(
+  limit: number = 50,
+  offset: number = 0
+): Promise<Photo[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('photos')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error || !data) return [];
+  return data.map(rowToPhoto);
+}
+
+export async function fetchAllPhotosCount(): Promise<number> {
+  const supabase = createClient();
+  const { count, error } = await supabase
+    .from('photos')
+    .select('*', { count: 'exact', head: true });
+
+  if (error || count === null) return 0;
+  return count;
+}

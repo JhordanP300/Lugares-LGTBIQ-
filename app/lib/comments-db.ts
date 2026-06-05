@@ -78,3 +78,38 @@ export async function deleteComment(id: string, userId: string): Promise<boolean
 
   return !error;
 }
+
+export async function adminDeleteComment(id: string): Promise<boolean> {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from('comments')
+    .delete()
+    .eq('id', id);
+
+  return !error;
+}
+
+export async function fetchAllComments(
+  limit: number = 50,
+  offset: number = 0
+): Promise<Comment[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('comments')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error || !data) return [];
+  return data.map(rowToComment);
+}
+
+export async function fetchAllCommentsCount(): Promise<number> {
+  const supabase = createClient();
+  const { count, error } = await supabase
+    .from('comments')
+    .select('*', { count: 'exact', head: true });
+
+  if (error || count === null) return 0;
+  return count;
+}

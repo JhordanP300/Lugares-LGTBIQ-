@@ -1,13 +1,15 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Menu, X, Info, Plus, Heart, LogIn, LogOut, User, UserPlus } from 'lucide-react';
+import { Menu, X, Info, Plus, Heart, LogIn, LogOut, User, UserPlus, Shield } from 'lucide-react';
 import AddPlaceForm from '@/app/components/AddPlaceForm';
 import Favorites from '@/app/components/Favorites';
+import NotificationBell from '@/app/components/NotificationBell';
 import { usePlaces } from '@/app/context/PlacesContext';
 import { useAuth } from '@/app/context/AuthContext';
+import { insertPlaceRequest, fetchAllRequests } from '@/app/lib/requests-db';
 
 // Cargamos el mapa de forma dinámica para evitar problemas con SSR
 const Map = dynamic(() => import('@/app/components/Map'), {
@@ -21,27 +23,54 @@ export default function Home() {
   const [sidebarTab, setSidebarTab] = useState<'inicio' | 'favoritos'>('inicio');
   const { places, addPlace } = usePlaces();
   const { user, profile, loading, signOut } = useAuth();
+  const isAdmin = profile?.role === 'admin';
   const router = useRouter();
+  const [pendingRequests, setPendingRequests] = useState(0);
+
+  // Cargar solicitudes pendientes para admin
+  useEffect(() => {
+    if (isAdmin) {
+      const loadPending = async () => {
+        const all = await fetchAllRequests('all');
+        setPendingRequests(all.filter((r) => r.status === 'pending').length);
+      };
+      loadPending();
+      const interval = setInterval(loadPending, 15000);
+      return () => clearInterval(interval);
+    }
+  }, [isAdmin]);
 
   return (
-    <div className='w-full h-screen relative overflow-hidden'>
+    <div className='w-full h-screen relative'>
       {/* Mapa */}
-      <Map />
+      <div className='absolute inset-0 overflow-hidden'>
+        <Map />
+      </div>
 
-      {/* Botón flotante para agregar lugar */}
-      <button
-        onClick={() => {
-          if (!user) {
-            router.push('/auth/login');
-            return;
-          }
-          setIsAddPlaceOpen(true);
-        }}
-        className='fixed bottom-16 right-3 sm:bottom-20 sm:right-4 z-40 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center gap-2'
-        title={user ? 'Agregar nuevo lugar' : 'Inicia sesión para agregar lugares'}
-      >
-        <Plus size={20} className='sm:w-6 sm:h-6' />
-      </button>
+      {/* Botón flotante para agregar lugar o ir al admin */}
+      {isAdmin ? (
+        <button
+          onClick={() => router.push('/admin')}
+          className='fixed bottom-16 right-3 sm:bottom-20 sm:right-4 z-40 bg-gradient-to-r from-purple-600 to-pink-600 text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center gap-2'
+          title='Panel de administración'
+        >
+          <Shield size={20} className='sm:w-6 sm:h-6' />
+        </button>
+      ) : (
+        <button
+          onClick={() => {
+            if (!user) {
+              router.push('/auth/login');
+              return;
+            }
+            setIsAddPlaceOpen(true);
+          }}
+          className='fixed bottom-16 right-3 sm:bottom-20 sm:right-4 z-40 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center gap-2'
+          title={user ? 'Enviar solicitud de lugar' : 'Inicia sesión para enviar solicitudes'}
+        >
+          <Plus size={20} className='sm:w-6 sm:h-6' />
+        </button>
+      )}
 
       {/* Sidebar con información */}
       <button
@@ -51,20 +80,27 @@ export default function Home() {
         {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
+      {/* Campana de notificaciones */}
+      {user && (
+        <div className='fixed top-4 right-16 z-40 md:hidden'>
+          <NotificationBell />
+        </div>
+      )}
+
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full w-[85vw] sm:w-80 max-w-[320px] bg-white shadow-2xl z-30 transition-transform duration-300 transform ${
+        className={`fixed top-0 left-0 h-full w-[85vw] sm:w-80 max-w-[320px] bg-white shadow-2xl z-30 transition-transform duration-300 transform flex flex-col ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-        } md:translate-x-0 overflow-y-auto`}
+        } md:translate-x-0`}
       >
         {/* Header del Sidebar */}
-        <div className='bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 p-6 text-white'>
+        <div className='bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 p-6 text-white flex-shrink-0'>
           <h1 className='text-2xl font-bold mb-2'>🌈 Lugares Seguros</h1>
           <p className='text-sm opacity-90'>Espacios LGBTIQ+ en Medellín</p>
         </div>
 
         {/* Auth section */}
-        <div className='px-4 py-3 border-b bg-gray-50'>
+        <div className='px-4 py-3 border-b bg-gray-50 flex-shrink-0'>
           {loading ? (
             <div className='text-xs text-gray-500 text-center py-1'>Cargando...</div>
           ) : user ? (
@@ -80,13 +116,25 @@ export default function Home() {
                   <p className='text-xs text-gray-500 truncate'>{user.email}</p>
                 </div>
               </div>
-              <button
-                onClick={signOut}
-                className='p-2 text-gray-400 hover:text-red-600 transition-colors flex-shrink-0'
-                title='Cerrar sesión'
-              >
-                <LogOut size={16} />
-              </button>
+              <div className='flex items-center gap-1'>
+                {isAdmin && (
+                  <button
+                    onClick={() => router.push('/admin')}
+                    className='p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors flex-shrink-0'
+                    title='Panel de administración'
+                  >
+                    <Shield size={16} />
+                  </button>
+                )}
+                <NotificationBell pendingCount={isAdmin ? pendingRequests : 0} />
+                <button
+                  onClick={signOut}
+                  className='p-2 text-gray-400 hover:text-red-600 transition-colors flex-shrink-0'
+                  title='Cerrar sesión'
+                >
+                  <LogOut size={16} />
+                </button>
+              </div>
             </div>
           ) : (
             <div className='space-y-2'>
@@ -108,6 +156,8 @@ export default function Home() {
           )}
         </div>
 
+        {/* Contenido scrollable */}
+        <div className='flex-1 overflow-y-auto min-h-0'>
         {/* Pestañas del Sidebar - Inicio y Favoritos */}
         <div className='flex border-b bg-gray-50 sticky top-0 z-10'>
           <button
@@ -183,20 +233,33 @@ export default function Home() {
           </div>
 
           {/* Botón para agregar lugar */}
-          <button
-            onClick={() => {
-              if (!user) {
-                router.push('/auth/login');
-                return;
-              }
-              setIsAddPlaceOpen(true);
-              setSidebarOpen(false);
-            }}
-            className='w-full bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow flex items-center justify-center gap-2'
-          >
-            <Plus size={20} />
-            Agregar Lugar
-          </button>
+          {isAdmin ? (
+            <button
+              onClick={() => {
+                setIsAddPlaceOpen(true);
+                setSidebarOpen(false);
+              }}
+              className='w-full bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow flex items-center justify-center gap-2'
+            >
+              <Plus size={20} />
+              Agregar Lugar Directamente
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                if (!user) {
+                  router.push('/auth/login');
+                  return;
+                }
+                setIsAddPlaceOpen(true);
+                setSidebarOpen(false);
+              }}
+              className='w-full bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow flex items-center justify-center gap-2'
+            >
+              <Plus size={20} />
+              Enviar Solicitud de Lugar
+            </button>
+          )}
 
           {/* Categorías */}
           <div>
@@ -259,6 +322,7 @@ export default function Home() {
             }}
           />
         )}
+        </div>
       </div>
 
       {/* Overlay para cerrar sidebar en mobile */}
@@ -272,7 +336,7 @@ export default function Home() {
       {/* Footer flotante */}
       <div className='fixed bottom-4 left-4 z-20 bg-white rounded-lg shadow-lg p-2 sm:p-3 max-w-[200px] sm:max-w-xs'>
         <p className='text-[10px] sm:text-xs text-gray-600'>
-          <strong>💡 Tip:</strong> Usa el botón + para agregar un nuevo lugar seguro
+          <strong>💡 Tip:</strong> {isAdmin ? 'Usa el botón 🛡️ para ir al panel de admin' : 'Usa el botón + para enviar una solicitud de lugar'}
         </p>
       </div>
 
@@ -280,9 +344,20 @@ export default function Home() {
       <AddPlaceForm
         isOpen={isAddPlaceOpen}
         onClose={() => setIsAddPlaceOpen(false)}
-        onAddPlace={(newPlace) => {
-          addPlace(newPlace, user?.id);
-          alert('¡Lugar agregado exitosamente! Gracias por contribuir a la comunidad.');
+        onAddPlace={async (newPlace) => {
+          if (isAdmin) {
+            // Admin agrega directamente
+            addPlace(newPlace, user?.id);
+            alert('¡Lugar agregado exitosamente!');
+          } else if (user) {
+            // Usuario envía solicitud
+            const request = await insertPlaceRequest(newPlace, user.id);
+            if (request) {
+              alert('¡Solicitud enviada! El equipo de administración evaluará tu lugar y recibirás una notificación cuando sea revisado.');
+            } else {
+              alert('Hubo un error al enviar la solicitud. Inténtalo de nuevo.');
+            }
+          }
         }}
       />
     </div>

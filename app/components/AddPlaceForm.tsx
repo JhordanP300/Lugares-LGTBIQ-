@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { X, Plus, Lock, Unlock, MapPin, Search, Loader2 } from 'lucide-react';
 import { Place } from '@/app/lib/places';
 import { cargarBarrios, Barrio } from '@/app/lib/barrios';
-import { geocodificarDireccion, Suggestion } from '@/app/lib/geocoding';
+import { geocodificarDireccion, parsearCoordenadasGoogleMaps, obtenerDireccionInversa, Suggestion } from '@/app/lib/geocoding';
 import dynamic from 'next/dynamic';
 
 // Mapa dinámico para el preview
@@ -114,11 +114,29 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
   }, []);
 
   // Manejar cambio en el campo de dirección
-  const handleDireccionChange = (value: string) => {
+  const handleDireccionChange = async (value: string) => {
     setFormData(prev => ({ ...prev, address: value }));
     setDireccionEncontrada(false);
 
-    // Debounce para no saturar la API
+    // Primero intentar parsear como coordenadas de Google Maps
+    const coordenadas = parsearCoordenadasGoogleMaps(value);
+    if (coordenadas) {
+      // Obtener la dirección legible con reverse geocoding
+      setBuscandoDireccion(true);
+      const direccionLegible = await obtenerDireccionInversa(coordenadas.lat, coordenadas.lng);
+      setFormData(prev => ({
+        ...prev,
+        coordinates: [coordenadas.lat, coordenadas.lng],
+        address: direccionLegible || `${coordenadas.lat}, ${coordenadas.lng}`,
+      }));
+      setDireccionEncontrada(true);
+      setBuscandoDireccion(false);
+      setSugerencias([]);
+      setMostrarSugerencias(false);
+      return;
+    }
+
+    // Si no es coordenadas, usar el flujo normal de geocodificación con debounce
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
@@ -349,7 +367,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                     onChange={(e) => handleDireccionChange(e.target.value)}
                     onKeyDown={handleDireccionKeyDown}
                     onFocus={() => sugerencias.length > 0 && setMostrarSugerencias(true)}
-                    placeholder='ej: Cra. 45 #55-10, Medellín'
+                    placeholder='Pega una URL de Google Maps o escribe la dirección'
                     className='w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
                   />
                   {buscandoDireccion && (
@@ -393,8 +411,10 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                 />
                 <p className='text-xs text-gray-500 mt-1'>
                   {direccionEncontrada 
-                    ? '✓ Dirección ubicada correctamente' 
-                    : 'Escribe una dirección y presiona Enter para ubicar en el mapa'}
+                    ? parsearCoordenadasGoogleMaps(formData.address) 
+                      ? '✓ Coordenadas de Google Maps detectadas y ubicadas'
+                      : '✓ Dirección ubicada correctamente' 
+                    : 'Pega una URL de Google Maps o escribe una dirección y presiona Enter'}
                 </p>
               </div>
 
