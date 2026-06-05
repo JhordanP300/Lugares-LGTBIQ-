@@ -96,6 +96,11 @@ export default function Map() {
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const mapRef = useRef<HTMLDivElement>(null);
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  useEffect(() => {
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
 
   const handleMarkerClick = useCallback((place: Place) => {
     // Cancelar timeout de ocultar tooltip si existe
@@ -103,18 +108,22 @@ export default function Map() {
       clearTimeout(hideTimeoutRef.current);
       hideTimeoutRef.current = null;
     }
+    // En dispositivos táctiles, ocultar tooltip inmediatamente
+    setHoveredPlace(null);
     setSelectedPlace(place);
     setIsModalOpen(true);
   }, []);
 
   const handleMarkerMouseOver = useCallback((place: Place) => {
+    // No mostrar tooltip en dispositivos táctiles
+    if (isTouchDevice) return;
     // Cancelar timeout de ocultar tooltip si existe
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
       hideTimeoutRef.current = null;
     }
     setHoveredPlace(place);
-  }, []);
+  }, [isTouchDevice]);
 
   const handleMarkerMouseOut = useCallback(() => {
     // Agregar un pequeño retraso antes de ocultar el tooltip
@@ -165,8 +174,8 @@ export default function Map() {
         ))}
       </MapContainer>
 
-      {/* Tooltip personalizado al hacer hover */}
-      {hoveredPlace && (
+      {/* Tooltip personalizado al hacer hover - solo en desktop */}
+      {hoveredPlace && !isTouchDevice && (
         <div
           className='absolute z-[9999] pointer-events-none transform -translate-x-1/2 -translate-y-full tooltip-animate'
           style={{
