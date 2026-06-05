@@ -6,7 +6,7 @@ import { useFavorites } from '@/app/hooks/useFavorites';
 import { categoryLabels } from '@/app/lib/places';
 
 interface FavoritesProps {
-  onSelectPlace?: (placeId: number) => void;
+  onSelectPlace?: (placeId: string) => void;
 }
 
 /**
@@ -20,7 +20,7 @@ interface FavoritesProps {
  */
 export default function Favorites({ onSelectPlace }: FavoritesProps) {
   const { favorites, removeFavorite } = useFavorites();
-  const [selectedFavoriteId, setSelectedFavoriteId] = useState<number | null>(null);
+  const [selectedFavoriteId, setSelectedFavoriteId] = useState<string | null>(null);
 
   if (favorites.length === 0) {
     return (
@@ -36,7 +36,7 @@ export default function Favorites({ onSelectPlace }: FavoritesProps) {
 
   return (
     <div className='space-y-3'>
-      <div className='px-6 py-3 bg-red-50 border-l-4 border-red-500'>
+      <div className='px-4 sm:px-6 py-3 bg-red-50 border-l-4 border-red-500'>
         <h3 className='font-bold text-gray-900 flex items-center gap-2'>
           <Heart size={18} className='fill-red-500 text-red-500' />
           Mis Favoritos ({favorites.length})
@@ -44,7 +44,7 @@ export default function Favorites({ onSelectPlace }: FavoritesProps) {
       </div>
 
       {/* Lista de favoritos con scroll */}
-      <div className='px-6 space-y-2 max-h-96 overflow-y-auto'>
+      <div className='px-4 sm:px-6 space-y-2 max-h-[60vh] sm:max-h-96 overflow-y-auto'>
         {favorites.map((place) => (
           <div
             key={place.id}
@@ -144,7 +144,7 @@ export default function Favorites({ onSelectPlace }: FavoritesProps) {
       </div>
 
       {/* Footer con estadísticas */}
-      <div className='px-6 py-3 bg-gray-50 border-t'>
+      <div className='px-4 sm:px-6 py-3 bg-gray-50 border-t'>
         <p className='text-xs text-gray-600 text-center'>
           {favorites.length === 1
             ? '1 lugar guardado en tus favoritos'

@@ -34,14 +34,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gray-50 p-4'>
+    <div className='min-h-screen flex items-center justify-center bg-gray-50 p-4 sm:p-6'>
       <div className='w-full max-w-md'>
-        <div className='text-center mb-8'>
-          <h1 className='text-3xl font-bold text-gray-900 mb-2'>🌈 Lugares Seguros</h1>
-          <p className='text-gray-600'>Inicia sesión para continuar</p>
+        <div className='text-center mb-6 sm:mb-8'>
+          <h1 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-2'>🌈 Lugares Seguros</h1>
+          <p className='text-sm sm:text-base text-gray-600'>Inicia sesión para continuar</p>
         </div>
 
-        <div className='bg-white rounded-2xl shadow-xl p-6 space-y-6'>
+        <div className='bg-white rounded-2xl shadow-xl p-4 sm:p-6 space-y-4 sm:space-y-6'>
           {/* Google Login */}
           <button
             onClick={handleGoogleLogin}

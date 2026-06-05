@@ -49,7 +49,7 @@ export function useFavorites() {
     });
   }, []);
 
-  const removeFavorite = useCallback((placeId: number) => {
+  const removeFavorite = useCallback((placeId: string) => {
     setFavorites((prev) => prev.filter(p => p.id !== placeId));
   }, []);
 
@@ -62,7 +62,7 @@ export function useFavorites() {
     });
   }, []);
 
-  const isFavorite = useCallback((placeId: number): boolean => {
+  const isFavorite = useCallback((placeId: string): boolean => {
     return favorites.some(p => p.id === placeId);
   }, [favorites]);
 

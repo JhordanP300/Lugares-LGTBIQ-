@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { Place, categoryLabels } from '@/app/lib/places';
 import { X, Phone, Globe, Clock, MapPin, Star, Heart } from 'lucide-react';
 import Comments from './Comments';
-import PhotoGallery from './PhotoGallery';
 import Toast from './Toast';
 import { useFavorites } from '@/app/hooks/useFavorites';
 
@@ -15,7 +14,7 @@ interface PlaceModalProps {
 }
 
 export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) {
-  const [activeTab, setActiveTab] = useState<'info' | 'comments' | 'photos'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'comments'>('info');
   // Usar el hook de favoritos en lugar de useState local
   const { isFavorite, toggleFavorite } = useFavorites();
   const [showFavoriteToast, setShowFavoriteToast] = useState(false);
@@ -87,7 +86,7 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
 
         {/* Tabs - flex-shrink-0 para que no se comprima */}
         <div className='flex-shrink-0 flex border-b bg-white'>
-          {(['info', 'comments', 'photos'] as const).map((tab) => (
+          {(['info', 'comments'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -99,13 +98,12 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
             >
               {tab === 'info' && 'Información'}
               {tab === 'comments' && 'Comentarios'}
-              {tab === 'photos' && 'Fotos'}
             </button>
           ))}
         </div>
 
         {/* Contenido */}
-        <div className='overflow-y-auto flex-1 p-6'>
+        <div className='overflow-y-auto flex-1 p-4 sm:p-6'>
           {activeTab === 'info' && (
             <div className='space-y-4'>
               <div>
@@ -191,7 +189,6 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
           )}
 
           {activeTab === 'comments' && <Comments placeId={place.id} />}
-          {activeTab === 'photos' && <PhotoGallery placeId={place.id} />}
         </div>
       </div>
 

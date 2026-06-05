@@ -24,3 +24,68 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Mejoras para dispositivos táctiles */
+@media (hover: none) and (pointer: coarse) {
+  /* Aumentar área de toque para botones */
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Aumentar área de toque para inputs */
+  input, select, textarea {
+    min-height: 44px;
+    font-size: 16px; /* Evita zoom en iOS */
+  }
+  
+  /* Mejorar área de toque para estrellas de calificación */
+  .star-rating button {
+    padding: 8px;
+  }
+}
+
+/* Estilos para marcadores del mapa */
+.custom-marker:hover .marker-icon {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+/* Animación suave para el tooltip */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tooltip-animate {
+  animation: fadeIn 0.15s ease-out;
+}
+
+/* Evitar zoom en inputs en iOS */
+@supports (-webkit-touch-callout: none) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Mejorar scroll en dispositivos táctiles */
+@media (max-width: 768px) {
+  .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+}
+
+/* Asegurar que los modales se vean bien en móvil */
+@media (max-width: 640px) {
+  .modal-content {
+    border-radius: 1rem 1rem 0 0;
+    max-height: 95vh;
+  }
+}

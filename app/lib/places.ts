@@ -1,8 +1,8 @@
 export interface Place {
-  id: number;
+  id: string;
   name: string;
   description: string;
-  category: 'cafe' | 'bar' | 'hotel' | 'parque' | 'culturalCenter' | 'health' | 'other';
+  category: 'cafe' | 'bar' | 'lugar' | 'parque' | 'culturalCenter' | 'health' | 'other';
   address: string;
   barrio: string;
   coordinates: [number, number]; // [lat, lng]
@@ -36,7 +36,7 @@ export const MEDELLIN_CENTER: [number, number] = [6.2442, -75.5812];
 
 export const places: Place[] = [
   {
-    id: 1,
+    id: '1',
     name: 'Café Rainbow',
     description: 'Café acogedor y seguro para la comunidad LGBTIQ+. Ofrecemos un espacio libre de discriminación con eventos mensuales.',
     category: 'cafe',
@@ -51,7 +51,7 @@ export const places: Place[] = [
     accessibility: ['Acceso en silla de ruedas', 'Baños inclusivos', 'Estacionamiento'],
   },
   {
-    id: 2,
+    id: '2',
     name: 'La Comunidad Bar',
     description: 'Bar LGBTIQ+ friendly con música en vivo, danzas y eventos especiales. Comunidad activa y acogedora.',
     category: 'bar',
@@ -65,10 +65,10 @@ export const places: Place[] = [
     accessibility: ['Acceso en silla de ruedas', 'Personal capacitado'],
   },
   {
-    id: 3,
+    id: '3',
     name: 'Hotel Identidad',
     description: 'Hotel gay-friendly ubicado en zona céntrica. Habitaciones cómodas y personal respetuoso.',
-    category: 'hotel',
+    category: 'lugar',
     address: 'Cra. 42 #48-15',
     barrio: 'Manila',
     coordinates: [6.2512, -75.5634],
@@ -80,7 +80,7 @@ export const places: Place[] = [
     accessibility: ['Ascensor', 'Baños adaptados', 'Aparcamiento'],
   },
   {
-    id: 4,
+    id: '4',
     name: 'Parque Explora',
     description: 'Parque interactivo y museo con entrada inclusiva. Espacio seguro para familias diversas.',
     category: 'parque',
@@ -95,7 +95,7 @@ export const places: Place[] = [
     accessibility: ['Acceso total en silla de ruedas', 'Áreas de descanso', 'Servicios higiénicos'],
   },
   {
-    id: 5,
+    id: '5',
     name: 'Centro Cultural LGBTIQ+',
     description: 'Espacio dedicado al arte, educación y activismo LGBTIQ+. Exposiciones, talleres y eventos comunitarios.',
     category: 'culturalCenter',
@@ -110,7 +110,7 @@ export const places: Place[] = [
     accessibility: ['Ascensor', 'Baños inclusivos', 'Intérpretes disponibles'],
   },
   {
-    id: 6,
+    id: '6',
     name: 'Clínica de Salud Integral',
     description: 'Centro de salud especializado en atención LGBTIQ+. Personal capacitado y respetuoso con políticas de confidencialidad.',
     category: 'health',
@@ -125,7 +125,7 @@ export const places: Place[] = [
     accessibility: ['Acceso total', 'Baños adaptados', 'Estacionamiento'],
   },
   {
-    id: 7,
+    id: '7',
     name: 'Biblioteca Pública Piloto',
     description: 'Biblioteca pública con colección LGBTIQ+ y espacios seguros para la comunidad. Eventos inclusivos.',
     category: 'culturalCenter',
@@ -140,7 +140,7 @@ export const places: Place[] = [
     accessibility: ['Ascensor', 'Baños inclusivos', 'WiFi gratis'],
   },
   {
-    id: 8,
+    id: '8',
     name: 'Restaurante Diverso',
     description: 'Restaurante con propietarios LGBTIQ+ que ofrece cocina local y ambiente seguro y celebratorio.',
     category: 'cafe',
@@ -180,7 +180,7 @@ export const RAINBOW_COLORS = [
 export const categoryLabels: Record<Place['category'], string> = {
   cafe: '☕ Café',
   bar: '🍹 Bar',
-  hotel: '🏨 Hotel',
+  lugar: '📍 Lugar Emblemático',
   parque: '🌳 Parque',
   culturalCenter: '🎨 Centro Cultural',
   health: '⚕️ Salud',
@@ -190,7 +190,7 @@ export const categoryLabels: Record<Place['category'], string> = {
 export const categoryColors: Record<Place['category'], string> = {
   cafe: '#FF0000',     // Rojo
   bar: '#FF7F00',      // Naranja
-  hotel: '#FFFF00',    // Amarillo
+  lugar: '#FFFF00',    // Amarillo
   parque: '#00FF00',   // Verde
   culturalCenter: '#0000FF', // Azul
   health: '#4B0082',   // Índigo

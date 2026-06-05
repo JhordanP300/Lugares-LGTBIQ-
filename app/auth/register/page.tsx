@@ -49,9 +49,9 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className='min-h-screen flex items-center justify-center bg-gray-50 p-4'>
+      <div className='min-h-screen flex items-center justify-center bg-gray-50 p-4 sm:p-6'>
         <div className='w-full max-w-md text-center'>
-          <div className='bg-white rounded-2xl shadow-xl p-8 space-y-4'>
+          <div className='bg-white rounded-2xl shadow-xl p-6 sm:p-8 space-y-4'>
             <div className='w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto'>
               <UserPlus size={32} className='text-green-600' />
             </div>
@@ -72,16 +72,16 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gray-50 p-4'>
+    <div className='min-h-screen flex items-center justify-center bg-gray-50 p-4 sm:p-6'>
       <div className='w-full max-w-md'>
         {/* Header */}
-        <div className='text-center mb-8'>
-          <h1 className='text-3xl font-bold text-gray-900 mb-2'>🌈 Lugares Seguros</h1>
-          <p className='text-gray-600'>Crea tu cuenta y únete a la comunidad</p>
+        <div className='text-center mb-6 sm:mb-8'>
+          <h1 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-2'>🌈 Lugares Seguros</h1>
+          <p className='text-sm sm:text-base text-gray-600'>Crea tu cuenta y únete a la comunidad</p>
         </div>
 
         {/* Card */}
-        <div className='bg-white rounded-2xl shadow-xl p-6 space-y-6'>
+        <div className='bg-white rounded-2xl shadow-xl p-4 sm:p-6 space-y-4 sm:space-y-6'>
           {/* Form */}
           <form onSubmit={handleSubmit} className='space-y-4'>
             <div>

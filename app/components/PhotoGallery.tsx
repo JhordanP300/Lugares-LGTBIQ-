@@ -107,7 +107,7 @@ export default function PhotoGallery({ placeId }: PhotoGalleryProps) {
   return (
     <div className='space-y-4'>
       {/* Formulario de carga */}
-      <div className='bg-purple-50 p-4 rounded-lg border-2 border-purple-200'>
+      <div className='bg-purple-50 p-3 sm:p-4 rounded-lg border-2 border-purple-200'>
         <h3 className='font-bold text-gray-900 mb-3'>Compartir tu foto</h3>
         <div className='space-y-3'>
           <input

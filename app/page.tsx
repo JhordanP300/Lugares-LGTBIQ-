@@ -37,10 +37,10 @@ export default function Home() {
           }
           setIsAddPlaceOpen(true);
         }}
-        className='fixed bottom-20 right-4 z-40 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-white p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center gap-2'
+        className='fixed bottom-16 right-3 sm:bottom-20 sm:right-4 z-40 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center gap-2'
         title={user ? 'Agregar nuevo lugar' : 'Inicia sesión para agregar lugares'}
       >
-        <Plus size={24} />
+        <Plus size={20} className='sm:w-6 sm:h-6' />
       </button>
 
       {/* Sidebar con información */}
@@ -53,7 +53,7 @@ export default function Home() {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full w-80 bg-white shadow-2xl z-30 transition-transform duration-300 transform ${
+        className={`fixed top-0 left-0 h-full w-[85vw] sm:w-80 max-w-[320px] bg-white shadow-2xl z-30 transition-transform duration-300 transform ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         } md:translate-x-0 overflow-y-auto`}
       >
@@ -212,7 +212,7 @@ export default function Home() {
               </div>
               <div className='flex items-center gap-2'>
                 <div className='w-4 h-4 rounded-full bg-yellow-500'></div>
-                <span className='text-gray-700'>🏨 Hoteles</span>
+                <span className='text-gray-700'>📍 Lugares Emblemáticos</span>
               </div>
               <div className='flex items-center gap-2'>
                 <div className='w-4 h-4 rounded-full bg-green-500'></div>
@@ -270,8 +270,8 @@ export default function Home() {
       )}
 
       {/* Footer flotante */}
-      <div className='fixed bottom-4 left-4 z-20 bg-white rounded-lg shadow-lg p-3 max-w-xs'>
-        <p className='text-xs text-gray-600'>
+      <div className='fixed bottom-4 left-4 z-20 bg-white rounded-lg shadow-lg p-2 sm:p-3 max-w-[200px] sm:max-w-xs'>
+        <p className='text-[10px] sm:text-xs text-gray-600'>
           <strong>💡 Tip:</strong> Usa el botón + para agregar un nuevo lugar seguro
         </p>
       </div>
@@ -281,7 +281,7 @@ export default function Home() {
         isOpen={isAddPlaceOpen}
         onClose={() => setIsAddPlaceOpen(false)}
         onAddPlace={(newPlace) => {
-          addPlace(newPlace);
+          addPlace(newPlace, user?.id);
           alert('¡Lugar agregado exitosamente! Gracias por contribuir a la comunidad.');
         }}
       />

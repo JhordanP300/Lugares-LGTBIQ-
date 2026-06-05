@@ -1,8 +1,21 @@
 'use client';
 
-import React, { useState } from 'react';
-import { X, Plus } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { X, Plus, Lock, Unlock, MapPin, Search, Loader2 } from 'lucide-react';
 import { Place } from '@/app/lib/places';
+import { cargarBarrios, Barrio } from '@/app/lib/barrios';
+import { geocodificarDireccion, Suggestion } from '@/app/lib/geocoding';
+import dynamic from 'next/dynamic';
+
+// Mapa dinámico para el preview
+const PreviewMap = dynamic(() => import('./PreviewMap'), {
+  ssr: false,
+  loading: () => (
+    <div className='w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center'>
+      <Loader2 className='animate-spin text-gray-400' size={24} />
+    </div>
+  ),
+});
 
 interface AddPlaceFormProps {
   isOpen: boolean;
@@ -26,31 +39,23 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
     accessibility: [] as string[],
   });
 
-  const [step, setStep] = useState(1); // 1: básico, 2: contacto, 3: accesibilidad
+  const [step, setStep] = useState(1);
+  const [barrios, setBarrios] = useState<Barrio[]>([]);
+  const [loadingBarrios, setLoadingBarrios] = useState(true);
+  const [sugerencias, setSugerencias] = useState<Suggestion[]>([]);
+  const [buscandoDireccion, setBuscandoDireccion] = useState(false);
+  const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
+  const [direccionEncontrada, setDireccionEncontrada] = useState(false);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const categories = [
     { value: 'cafe', label: 'Café' },
     { value: 'bar', label: 'Bar' },
-    { value: 'hotel', label: 'Hotel' },
+    { value: 'lugar', label: 'Lugar Emblemático' },
     { value: 'parque', label: 'Parque' },
     { value: 'culturalCenter', label: 'Centro Cultural' },
     { value: 'health', label: 'Salud' },
     { value: 'other', label: 'Otro' },
-  ];
-
-  const barrios = [
-    'Parque Arvi',
-    'Parque Bolívar',
-    'Manila',
-    'Barrio Colombia',
-    'La Candelaria',
-    'Estadio',
-    'Moravia',
-    'Prado',
-    'Centro',
-    'San Alejo',
-    'Laureles',
-    'Belén',
   ];
 
   const accessibilityOptions = [
@@ -65,6 +70,86 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
     'Intérpretes disponibles',
     'Menú en braille',
   ];
+
+  // Cargar barrios al abrir el formulario
+  useEffect(() => {
+    if (isOpen) {
+      cargarBarriosFormulario();
+    }
+  }, [isOpen]);
+
+  const cargarBarriosFormulario = async () => {
+    setLoadingBarrios(true);
+    const data = await cargarBarrios();
+    setBarrios(data);
+    setLoadingBarrios(false);
+  };
+
+  // Buscar sugerencias de dirección con debounce
+  const buscarSugerencias = useCallback(async (busqueda: string) => {
+    if (busqueda.length < 3) {
+      setSugerencias([]);
+      setMostrarSugerencias(false);
+      return;
+    }
+
+    setBuscandoDireccion(true);
+    const resultados = await geocodificarDireccion(busqueda);
+    
+    // También obtener sugerencias para el autocompletado
+    const { obtenerSugerencias } = await import('@/app/lib/geocoding');
+    const sugerenciasData = await obtenerSugerencias(busqueda);
+    setSugerencias(sugerenciasData);
+    setMostrarSugerencias(sugerenciasData.length > 0);
+    setBuscandoDireccion(false);
+
+    if (resultados) {
+      setFormData(prev => ({
+        ...prev,
+        coordinates: [resultados.lat, resultados.lng],
+        address: resultados.displayName.split(',').slice(0, 2).join(','),
+      }));
+      setDireccionEncontrada(true);
+    }
+  }, []);
+
+  // Manejar cambio en el campo de dirección
+  const handleDireccionChange = (value: string) => {
+    setFormData(prev => ({ ...prev, address: value }));
+    setDireccionEncontrada(false);
+
+    // Debounce para no saturar la API
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    
+    debounceRef.current = setTimeout(() => {
+      buscarSugerencias(value);
+    }, 500);
+  };
+
+  // Seleccionar una sugerencia
+  const seleccionarSugerencia = (sugerencia: Suggestion) => {
+    setFormData(prev => ({
+      ...prev,
+      address: sugerencia.displayName.split(',').slice(0, 2).join(','),
+      coordinates: [sugerencia.lat, sugerencia.lng],
+    }));
+    setSugerencias([]);
+    setMostrarSugerencias(false);
+    setDireccionEncontrada(true);
+  };
+
+  // Buscar dirección al presionar Enter
+  const handleDireccionKeyDown = async (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+      await buscarSugerencias(formData.address);
+    }
+  };
 
   const handleAccessibilityToggle = (item: string) => {
     setFormData((prev) => ({
@@ -82,7 +167,14 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
       alert('Por favor, completa los campos obligatorios');
       return;
     }
-    // Aquí podrías agregar validaciones adicionales, como formato de teléfono o URL
+
+    if (!direccionEncontrada) {
+      const confirmar = confirm(
+        'La dirección no fue verificada en el mapa. ¿Deseas agregar el lugar de todas formas?'
+      );
+      if (!confirmar) return;
+    }
+
     onAddPlace(formData);
     setFormData({
       name: '',
@@ -98,6 +190,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
       lgbtiqFriendly: true,
       accessibility: [],
     });
+    setDireccionEncontrada(false);
     setStep(1);
     onClose();
   };
@@ -107,7 +200,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
   return (
     <div className='fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50'>
       <div className='bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col shadow-2xl animate-in overflow-hidden'>
-        {/* Header - flex-shrink-0 asegura que no se comprima */}
+        {/* Header */}
         <div className='flex-shrink-0 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 p-3 sm:p-6 rounded-t-2xl sm:rounded-t-2xl relative'>
           <button
             onClick={onClose}
@@ -126,7 +219,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
           </p>
         </div>
 
-        {/* Indicador de pasos - flex-shrink-0 también */}
+        {/* Indicador de pasos */}
         <div className='flex-shrink-0 flex items-center justify-between px-3 sm:px-6 pt-2 sm:pt-4 pb-1 sm:pb-2 bg-white gap-1 sm:gap-0'>
           {[1, 2, 3].map((s) => (
             <div key={s} className='flex items-center flex-1 sm:flex-none'>
@@ -216,41 +309,97 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                   <label className='block text-sm font-semibold text-gray-700 mb-1'>
                     Barrio *
                   </label>
-                  <select
-                    required
-                    value={formData.barrio}
-                    onChange={(e) => setFormData({ ...formData, barrio: e.target.value })}
-                    className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
-                  >
-                    <option value=''>Selecciona un barrio</option>
-                    {barrios.map((barrio) => (
-                      <option key={barrio} value={barrio}>
-                        {barrio}
-                      </option>
-                    ))}
-                  </select>
+                  {loadingBarrios ? (
+                    <div className='w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 flex items-center gap-2'>
+                      <Loader2 className='animate-spin text-purple-600' size={16} />
+                      <span className='text-sm text-gray-500'>Cargando barrios...</span>
+                    </div>
+                  ) : (
+                    <select
+                      required
+                      value={formData.barrio}
+                      onChange={(e) => setFormData({ ...formData, barrio: e.target.value })}
+                      className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                    >
+                      <option value=''>Selecciona un barrio</option>
+                      {barrios.map((barrio) => (
+                        <option key={barrio.id} value={barrio.nombre}>
+                          {barrio.nombre} - {barrio.comuna}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
               </div>
 
-              <div>
+              {/* Campo de Dirección con autocompletado */}
+              <div className='relative'>
                 <label className='block text-sm font-semibold text-gray-700 mb-1'>
                   Dirección *
                 </label>
-                <input
-                  type='text'
-                  required
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  placeholder='ej: Cra. 45 #55-10'
-                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
-                />
+                <div className='relative'>
+                  <MapPin size={16} className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400' />
+                  <input
+                    type='text'
+                    required
+                    value={formData.address}
+                    onChange={(e) => handleDireccionChange(e.target.value)}
+                    onKeyDown={handleDireccionKeyDown}
+                    onFocus={() => sugerencias.length > 0 && setMostrarSugerencias(true)}
+                    placeholder='ej: Cra. 45 #55-10, Medellín'
+                    className='w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                  />
+                  {buscandoDireccion && (
+                    <Loader2 size={16} className='absolute right-3 top-1/2 -translate-y-1/2 text-purple-600 animate-spin' />
+                  )}
+                  {direccionEncontrada && !buscandoDireccion && (
+                    <MapPin size={16} className='absolute right-3 top-1/2 -translate-y-1/2 text-green-500' />
+                  )}
+                </div>
+                
+                {/* Lista de sugerencias */}
+                {mostrarSugerencias && sugerencias.length > 0 && (
+                  <div className='absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto'>
+                    {sugerencias.map((sugerencia) => (
+                      <button
+                        key={sugerencia.placeId}
+                        type='button'
+                        onClick={() => seleccionarSugerencia(sugerencia)}
+                        className='w-full text-left px-4 py-3 hover:bg-purple-50 border-b border-gray-100 last:border-0 transition-colors'
+                      >
+                        <div className='flex items-start gap-2'>
+                          <MapPin size={14} className='text-purple-600 mt-0.5 flex-shrink-0' />
+                          <span className='text-sm text-gray-700 line-clamp-2'>
+                            {sugerencia.displayName}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
+              {/* Preview del mapa */}
+              <div>
+                <label className='block text-sm font-semibold text-gray-700 mb-1'>
+                  Ubicación en el mapa
+                </label>
+                <PreviewMap 
+                  coordinates={formData.coordinates} 
+                  address={formData.address}
+                />
+                <p className='text-xs text-gray-500 mt-1'>
+                  {direccionEncontrada 
+                    ? '✓ Dirección ubicada correctamente' 
+                    : 'Escribe una dirección y presiona Enter para ubicar en el mapa'}
+                </p>
+              </div>
+
+              {/* Calificación de Seguridad */}
               <div>
                 <label className='block text-sm font-semibold text-gray-700 mb-2'>
                   Calificación de Seguridad
                 </label>
-                {/* Botones de estrellas - más responsive en móvil */}
                 <div className='flex flex-wrap gap-2 items-center'>
                   {[1, 2, 3, 4, 5].map((rating) => (
                     <button
@@ -258,17 +407,20 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                       type='button'
                       onClick={() => setFormData({ ...formData, safetyRating: rating })}
                       className='transition-transform hover:scale-125 active:scale-95 p-1 cursor-pointer'
-                      title={`Calificación: ${rating} estrellas`}
-                      aria-label={`Seleccionar ${rating} estrellas`}
+                      title={`Calificación: ${rating} candados de seguridad`}
+                      aria-label={`Seleccionar ${rating} candados de seguridad`}
                     >
                       <span className='text-2xl sm:text-3xl'>
-                        {rating <= formData.safetyRating ? '⭐' : '☆'}
+                        {rating <= formData.safetyRating ? (
+                          <Lock className='text-purple-600 fill-purple-100' size={28} />
+                        ) : (
+                          <Unlock className='text-gray-300' size={28} />
+                        )}
                       </span>
                     </button>
                   ))}
-                  {/* Mostrar número de estrellas seleccionadas */}
                   <span className='text-sm text-gray-600 ml-2'>
-                    {formData.safetyRating}/5 estrellas
+                    {formData.safetyRating}/5 candados
                   </span>
                 </div>
               </div>
@@ -372,7 +524,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
           )}
         </form>
 
-        {/* Botones de acción - flex-shrink-0 para que no se compriman */}
+        {/* Botones de acción */}
         <div className='flex-shrink-0 flex flex-wrap gap-2 sm:gap-3 p-4 sm:p-6 border-t bg-gray-50'>
           {step > 1 && (
             <button
