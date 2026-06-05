@@ -82,10 +82,29 @@ body {
   }
 }
 
+/* Viewport height real en móviles (dvh con fallback a vh) */
+:root {
+  --app-height: 100vh;
+}
+
+@supports (height: 100dvh) {
+  :root {
+    --app-height: 100dvh;
+  }
+}
+
 /* Asegurar que los modales se vean bien en móvil */
 @media (max-width: 640px) {
   .modal-content {
     border-radius: 1rem 1rem 0 0;
-    max-height: 95vh;
+    max-height: calc(var(--app-height) - 2rem);
+  }
+}
+
+/* Safe area para dispositivos con notch */
+@supports (padding: env(safe-area-inset-top)) {
+  .modal-backdrop {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }

@@ -198,8 +198,11 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
   if (!isOpen) return null;
 
   return (
-    <div className='fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50'>
-      <div className='bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col shadow-2xl animate-in overflow-hidden'>
+    <div className='fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 modal-backdrop'>
+      <div
+        className='bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl flex flex-col shadow-2xl animate-in overflow-hidden'
+        style={{ maxHeight: 'min(95vh, 95dvh)' }}
+      >
         {/* Header */}
         <div className='flex-shrink-0 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 p-3 sm:p-6 rounded-t-2xl sm:rounded-t-2xl relative'>
           <button

@@ -32,8 +32,11 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
   };
 
   return (
-    <div className='fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50'>
-      <div className='bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col shadow-2xl animate-in overflow-hidden'>
+    <div className='fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 modal-backdrop'>
+      <div
+        className='bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl flex flex-col shadow-2xl animate-in overflow-hidden'
+        style={{ maxHeight: 'min(95vh, 95dvh)' }}
+      >
         {/* Header con degradado arcoíris - flex-shrink-0 para que no se comprima */}
         <div className={`flex-shrink-0 ${getRainbowGradient()} p-6 rounded-t-2xl sm:rounded-t-2xl relative`}>
           <button
