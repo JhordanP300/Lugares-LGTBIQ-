@@ -146,14 +146,15 @@ export default function ContentTable({
               alt={photo.author || 'Foto'}
               className='w-full h-40 object-cover'
             />
-            <div className='absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors'>
-              <button
-                onClick={() => onDeletePhoto?.(photo)}
-                className='absolute top-2 right-2 p-1.5 bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity'
-              >
-                <Trash2 size={14} />
-              </button>
-            </div>
+            <button
+              onClick={() => onDeletePhoto?.(photo)}
+              className='absolute top-1.5 right-1.5 flex items-center justify-center p-1 bg-red-600/90 text-white rounded-md shadow-md
+                md:opacity-0 md:group-hover:opacity-100 transition-opacity'
+              title='Eliminar foto'
+            >
+              <Trash2 size={12} />
+            </button>
+            <div className='absolute inset-0 bg-black/40 opacity-0 md:group-hover:opacity-100 transition-opacity pointer-events-none' />
             <div className='p-2'>
               <p className='text-xs text-gray-600 truncate'>{photo.author || 'Anónimo'}</p>
               <p className='text-xs text-gray-400'>

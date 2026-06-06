@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Plus, ShieldCheck, Shield, MapPin, Search, Loader2 } from 'lucide-react';
 import { Place } from '@/app/lib/places';
 import { cargarBarrios, Barrio } from '@/app/lib/barrios';
@@ -46,6 +47,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
   const [buscandoDireccion, setBuscandoDireccion] = useState(false);
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
   const [direccionEncontrada, setDireccionEncontrada] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const categories = [
@@ -361,12 +363,14 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                 <div className='relative'>
                   <MapPin size={16} className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400' />
                   <input
+                    ref={inputRef}
                     type='text'
                     required
                     value={formData.address}
                     onChange={(e) => handleDireccionChange(e.target.value)}
                     onKeyDown={handleDireccionKeyDown}
                     onFocus={() => sugerencias.length > 0 && setMostrarSugerencias(true)}
+                    onBlur={() => setTimeout(() => setMostrarSugerencias(false), 200)}
                     placeholder='Pega una URL de Google Maps o escribe la dirección'
                     className='w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
                   />
@@ -378,25 +382,37 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                   )}
                 </div>
                 
-                {/* Lista de sugerencias */}
-                {mostrarSugerencias && sugerencias.length > 0 && (
-                  <div className='absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto'>
-                    {sugerencias.map((sugerencia) => (
-                      <button
-                        key={sugerencia.placeId}
-                        type='button'
-                        onClick={() => seleccionarSugerencia(sugerencia)}
-                        className='w-full text-left px-4 py-3 hover:bg-purple-50 border-b border-gray-100 last:border-0 transition-colors'
-                      >
-                        <div className='flex items-start gap-2'>
-                          <MapPin size={14} className='text-purple-600 mt-0.5 flex-shrink-0' />
-                          <span className='text-sm text-gray-700 line-clamp-2'>
-                            {sugerencia.displayName}
-                          </span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
+                {/* Lista de sugerencias con portal para evitar overflow clipping */}
+                {mostrarSugerencias && sugerencias.length > 0 && inputRef.current && (
+                  createPortal(
+                    <div
+                      style={{
+                        position: 'fixed',
+                        zIndex: 9999,
+                        left: inputRef.current.getBoundingClientRect().left,
+                        top: inputRef.current.getBoundingClientRect().bottom + window.scrollY,
+                        width: inputRef.current.offsetWidth,
+                      }}
+                      className='bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-y-auto'
+                    >
+                      {sugerencias.map((sugerencia) => (
+                        <button
+                          key={sugerencia.placeId}
+                          type='button'
+                          onClick={() => seleccionarSugerencia(sugerencia)}
+                          className='w-full text-left px-4 py-3 hover:bg-purple-50 border-b border-gray-100 last:border-0 transition-colors'
+                        >
+                          <div className='flex items-start gap-2'>
+                            <MapPin size={14} className='text-purple-600 mt-0.5 flex-shrink-0' />
+                            <span className='text-sm text-gray-700 line-clamp-2'>
+                              {sugerencia.displayName}
+                            </span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>,
+                    document.body
+                  )
                 )}
               </div>
 
