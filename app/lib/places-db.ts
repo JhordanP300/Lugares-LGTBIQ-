@@ -91,13 +91,14 @@ export async function insertPlace(place: Omit<Place, 'id'>, userId: string): Pro
 }
 
 export async function deletePlace(id: string): Promise<boolean> {
-  const supabase = createClient();
-  const { error } = await supabase
-    .from('places')
-    .delete()
-    .eq('id', id);
-
-  return !error;
+  try {
+    const res = await fetch(`/api/places?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 export async function adminUpdatePlace(

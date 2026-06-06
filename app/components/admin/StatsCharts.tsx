@@ -18,8 +18,8 @@ export default function StatsCharts({ placesByCategory, userStats }: StatsCharts
   return (
     <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
       {/* Lugares por categoría */}
-      <div className='bg-white rounded-xl p-6 shadow-sm border border-gray-100'>
-        <h3 className='text-lg font-bold text-gray-900 mb-4'>Lugares por Categoría</h3>
+      <div className='bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-100'>
+        <h3 className='text-base md:text-lg font-bold text-gray-900 mb-3 md:mb-4'>Lugares por Categoría</h3>
         <div className='space-y-3'>
           {Object.entries(placesByCategory)
             .sort(([, a], [, b]) => b - a)
@@ -49,26 +49,26 @@ export default function StatsCharts({ placesByCategory, userStats }: StatsCharts
       </div>
 
       {/* Distribución de usuarios */}
-      <div className='bg-white rounded-xl p-6 shadow-sm border border-gray-100'>
-        <h3 className='text-lg font-bold text-gray-900 mb-4'>Distribución de Usuarios</h3>
-        <div className='space-y-4'>
-          <div className='flex items-center justify-between p-3 bg-purple-50 rounded-lg'>
+      <div className='bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-100'>
+        <h3 className='text-base md:text-lg font-bold text-gray-900 mb-3 md:mb-4'>Distribución de Usuarios</h3>
+        <div className='space-y-2 md:space-y-4'>
+          <div className='flex items-center justify-between p-2 md:p-3 bg-purple-50 rounded-lg'>
             <div className='flex items-center gap-3'>
               <div className='w-4 h-4 rounded-full bg-purple-500' />
               <span className='text-sm font-medium text-gray-700'>Administradores</span>
             </div>
-            <span className='text-xl font-bold text-purple-600'>{userStats.admins}</span>
+            <span className='text-lg md:text-xl font-bold text-purple-600'>{userStats.admins}</span>
           </div>
-          <div className='flex items-center justify-between p-3 bg-gray-50 rounded-lg'>
+          <div className='flex items-center justify-between p-2 md:p-3 bg-gray-50 rounded-lg'>
             <div className='flex items-center gap-3'>
               <div className='w-4 h-4 rounded-full bg-gray-400' />
               <span className='text-sm font-medium text-gray-700'>Usuarios</span>
             </div>
-            <span className='text-xl font-bold text-gray-600'>{userStats.users}</span>
+            <span className='text-lg md:text-xl font-bold text-gray-600'>{userStats.users}</span>
           </div>
-          <div className='pt-3 border-t border-gray-100 text-center'>
-            <p className='text-sm text-gray-500'>Total registrados</p>
-            <p className='text-2xl font-bold text-gray-900'>{userStats.total}</p>
+          <div className='pt-2 md:pt-3 border-t border-gray-100 text-center'>
+            <p className='text-xs md:text-sm text-gray-500'>Total registrados</p>
+            <p className='text-xl md:text-2xl font-bold text-gray-900'>{userStats.total}</p>
           </div>
         </div>
       </div>

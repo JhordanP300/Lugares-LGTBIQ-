@@ -138,7 +138,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       )}
 
       {/* Contenido principal */}
-      <div className='flex-1 md:ml-64 h-screen overflow-y-auto'>
+      <div className='flex-1 md:ml-64 min-h-0 overflow-y-auto' style={{ height: '100dvh' }}>
         {/* Header mobile */}
         <header className='sticky top-0 z-30 bg-white shadow-sm px-4 py-3 flex items-center gap-4 md:hidden'>
           <button
