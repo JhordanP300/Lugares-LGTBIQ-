@@ -147,7 +147,7 @@ export default function AdminDashboard() {
       {/* Resumen de solicitudes */}
       <div className='bg-white rounded-xl p-6 shadow-sm border border-gray-100'>
         <h2 className='text-lg font-bold text-gray-900 mb-4'>Resumen de Solicitudes</h2>
-        <div className='flex gap-4'>
+        <div className='grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4'>
           <div className='flex-1 text-center p-4 bg-gray-50 rounded-lg'>
             <p className='text-3xl font-bold text-gray-900'>{stats.requests.total}</p>
             <p className='text-sm text-gray-600'>Total</p>

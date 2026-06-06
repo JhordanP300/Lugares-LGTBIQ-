@@ -80,13 +80,6 @@ export default function Home() {
         {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
-      {/* Campana de notificaciones */}
-      {user && (
-        <div className='fixed top-4 right-16 z-40 md:hidden'>
-          <NotificationBell />
-        </div>
-      )}
-
       {/* Sidebar */}
       <div
         className={`fixed top-0 left-0 h-full w-[85vw] sm:w-80 max-w-[320px] bg-white shadow-2xl z-30 transition-transform duration-300 transform flex flex-col ${
@@ -334,7 +327,7 @@ export default function Home() {
       )}
 
       {/* Footer flotante */}
-      <div className='fixed bottom-4 left-4 z-20 bg-white rounded-lg shadow-lg p-2 sm:p-3 max-w-[200px] sm:max-w-xs'>
+      <div className='fixed bottom-4 left-3 sm:left-4 z-20 bg-white rounded-lg shadow-lg p-2 sm:p-3 max-w-[160px] sm:max-w-xs'>
         <p className='text-[10px] sm:text-xs text-gray-600'>
           <strong>💡 Tip:</strong> {isAdmin ? 'Usa el botón 🛡️ para ir al panel de admin' : 'Usa el botón + para enviar una solicitud de lugar'}
         </p>

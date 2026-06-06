@@ -53,13 +53,28 @@ export default function NotificationBell({ pendingCount = 0 }: NotificationBellP
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+
   const handleToggle = () => {
     if (!open && wrapperRef.current) {
       const rect = wrapperRef.current.getBoundingClientRect();
-      setBtnPos({
-        top: rect.bottom + 8,
-        left: rect.left,
-      });
+      const vw = window.innerWidth;
+      if (vw < 640) {
+        setBtnPos({
+          top: rect.bottom + 6,
+          left: 8,
+        });
+      } else {
+        const dropdownWidth = 384;
+        let left = rect.left;
+        if (left + dropdownWidth > vw - 8) {
+          left = Math.max(8, vw - dropdownWidth - 8);
+        }
+        setBtnPos({
+          top: rect.bottom + 8,
+          left,
+        });
+      }
       refresh();
     }
     setOpen((v) => !v);
@@ -83,14 +98,19 @@ export default function NotificationBell({ pendingCount = 0 }: NotificationBellP
         open ? (
           <div
             ref={dropdownRef}
-            className='fixed w-80 sm:w-96 bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden'
-            style={{ top: btnPos.top, left: btnPos.left, zIndex: 99999 }}
+            className='fixed sm:w-96 bg-white rounded-lg sm:rounded-lg shadow-2xl border border-gray-200 overflow-hidden'
+            style={{
+              top: btnPos.top,
+              left: btnPos.left,
+              zIndex: 99999,
+              width: window.innerWidth < 640 ? 'calc(100vw - 16px)' : undefined,
+            }}
           >
             <div className='px-4 py-3 border-b border-gray-100 bg-gray-50'>
               <span className='text-sm font-semibold text-gray-800'>Notificaciones</span>
             </div>
 
-            <div className='max-h-80 overflow-y-auto'>
+            <div className='max-h-[60vh] sm:max-h-80 overflow-y-auto'>
               {pendingCount > 0 && (
                 <div className='p-3 border-b border-gray-100 bg-yellow-50'>
                   <p className='text-sm text-yellow-800 font-medium mb-2'>
