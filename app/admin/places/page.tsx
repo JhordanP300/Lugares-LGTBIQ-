@@ -6,7 +6,7 @@ import { fetchAllPlaces, adminUpdatePlace, deletePlace } from '@/app/lib/places-
 import { cargarBarrios, Barrio } from '@/app/lib/barrios';
 import { useAuth } from '@/app/context/AuthContext';
 import { createNotification } from '@/app/lib/notifications-db';
-import { MapPin, Edit2, Trash2, Loader2, X, Lock, Unlock, Star, Save } from 'lucide-react';
+import { MapPin, Edit2, Trash2, Loader2, X, ShieldCheck, Shield, Save } from 'lucide-react';
 
 type PlaceWithMeta = Place & { createdBy: string | null; createdAt: string };
 
@@ -164,14 +164,22 @@ export default function AdminPlacesPage() {
                 </div>
 
                 <div className='mt-3 flex items-center gap-1'>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      size={14}
-                      className={i < place.safetyRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
-                    />
-                  ))}
-                  <span className='text-xs text-gray-500 ml-1'>Seguridad</span>
+                  {Array.from({ length: 5 }).map((_, i) =>
+                    i < place.safetyRating ? (
+                      <ShieldCheck
+                        key={i}
+                        size={14}
+                        className='text-yellow-500'
+                      />
+                    ) : (
+                      <Shield
+                        key={i}
+                        size={14}
+                        className='text-gray-300'
+                      />
+                    )
+                  )}
+                  <span className='text-xs text-gray-500 ml-1'>{place.safetyRating}/5</span>
                 </div>
 
                 {place.createdAt && (
@@ -281,9 +289,9 @@ export default function AdminPlacesPage() {
                     >
                       <span className='text-2xl'>
                         {rating <= (editData.safetyRating || 5) ? (
-                          <Lock className='text-purple-600 fill-purple-100' size={24} />
+                          <ShieldCheck className='text-purple-600' size={24} />
                         ) : (
-                          <Unlock className='text-gray-300' size={24} />
+                          <Shield className='text-gray-300' size={24} />
                         )}
                       </span>
                     </button>

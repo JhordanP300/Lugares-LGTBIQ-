@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Place, categoryLabels } from '@/app/lib/places';
-import { X, Phone, Globe, Clock, MapPin, Star, Heart } from 'lucide-react';
+import { X, Phone, Globe, Clock, MapPin, ShieldCheck, Shield, Heart } from 'lucide-react';
 import Comments from './Comments';
 import Toast from './Toast';
 import { useFavorites } from '@/app/hooks/useFavorites';
@@ -75,15 +75,24 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
           {/* Rating de seguridad */}
           <div className='mt-4 flex items-center gap-2 bg-white/20 w-fit px-3 py-2 rounded-full'>
             <span className='text-white font-semibold text-sm'>Seguridad:</span>
-            <div className='flex gap-1'>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  size={16}
-                  className={i < place.safetyRating ? 'fill-yellow-300 text-yellow-300' : 'text-white/30'}
-                />
-              ))}
+            <div className='flex gap-0.5'>
+              {Array.from({ length: 5 }).map((_, i) =>
+                i < place.safetyRating ? (
+                  <ShieldCheck
+                    key={i}
+                    size={16}
+                    className='text-yellow-300 drop-shadow-sm'
+                  />
+                ) : (
+                  <Shield
+                    key={i}
+                    size={16}
+                    className='text-white/30'
+                  />
+                )
+              )}
             </div>
+            <span className='text-white/80 text-xs ml-1'>{place.safetyRating}/5</span>
           </div>
         </div>
 

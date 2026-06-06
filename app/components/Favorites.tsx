@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Heart, MapPin, Star, MessageCircle, Image as ImageIcon } from 'lucide-react';
+import { Heart, MapPin, ShieldCheck, Shield, MessageCircle, Image as ImageIcon } from 'lucide-react';
 import { useFavorites } from '@/app/hooks/useFavorites';
 import { categoryLabels } from '@/app/lib/places';
 
@@ -98,19 +98,23 @@ export default function Favorites({ onSelectPlace }: FavoritesProps) {
               {/* Calificación de seguridad */}
               <div className='flex items-center gap-1'>
                 <div className='flex gap-0.5'>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      size={12}
-                      className={
-                        i < place.safetyRating
-                          ? 'fill-yellow-400 text-yellow-400'
-                          : 'text-gray-300'
-                      }
-                    />
-                  ))}
+                  {Array.from({ length: 5 }).map((_, i) =>
+                    i < place.safetyRating ? (
+                      <ShieldCheck
+                        key={i}
+                        size={12}
+                        className='text-yellow-500'
+                      />
+                    ) : (
+                      <Shield
+                        key={i}
+                        size={12}
+                        className='text-gray-300'
+                      />
+                    )
+                  )}
                 </div>
-                <span>{place.safetyRating}/5 seguridad</span>
+                <span className='text-xs'>{place.safetyRating}/5</span>
               </div>
 
               {/* Badges: LGBTIQ+ Friendly, Accesibilidad */}

@@ -13,8 +13,8 @@ import {
   Phone,
   Globe,
   Clock,
-  Lock,
-  Star,
+  ShieldCheck,
+  Shield,
   X,
 } from 'lucide-react';
 import { categoryLabels } from '@/app/lib/places';
@@ -126,13 +126,21 @@ export default function RequestCard({
               <div className='flex items-center gap-1'>
                 <span className='text-gray-500'>Seguridad:</span>
                 <div className='flex gap-0.5'>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      size={14}
-                      className={i < request.safetyRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
-                    />
-                  ))}
+                  {Array.from({ length: 5 }).map((_, i) =>
+                    i < request.safetyRating ? (
+                      <ShieldCheck
+                        key={i}
+                        size={14}
+                        className='text-yellow-500'
+                      />
+                    ) : (
+                      <Shield
+                        key={i}
+                        size={14}
+                        className='text-gray-300'
+                      />
+                    )
+                  )}
                 </div>
               </div>
               {request.phone && (

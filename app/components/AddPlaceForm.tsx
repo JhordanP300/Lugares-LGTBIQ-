@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { X, Plus, Lock, Unlock, MapPin, Search, Loader2 } from 'lucide-react';
+import { X, Plus, ShieldCheck, Shield, MapPin, Search, Loader2 } from 'lucide-react';
 import { Place } from '@/app/lib/places';
 import { cargarBarrios, Barrio } from '@/app/lib/barrios';
 import { geocodificarDireccion, parsearCoordenadasGoogleMaps, obtenerDireccionInversa, Suggestion } from '@/app/lib/geocoding';
@@ -430,20 +430,20 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                       type='button'
                       onClick={() => setFormData({ ...formData, safetyRating: rating })}
                       className='transition-transform hover:scale-125 active:scale-95 p-1 cursor-pointer'
-                      title={`Calificación: ${rating} candados de seguridad`}
-                      aria-label={`Seleccionar ${rating} candados de seguridad`}
+                      title={`Calificación: ${rating} de seguridad`}
+                      aria-label={`Seleccionar ${rating} de seguridad`}
                     >
                       <span className='text-2xl sm:text-3xl'>
                         {rating <= formData.safetyRating ? (
-                          <Lock className='text-purple-600 fill-purple-100' size={28} />
+                          <ShieldCheck className='text-purple-600' size={28} />
                         ) : (
-                          <Unlock className='text-gray-300' size={28} />
+                          <Shield className='text-gray-300' size={28} />
                         )}
                       </span>
                     </button>
                   ))}
                   <span className='text-sm text-gray-600 ml-2'>
-                    {formData.safetyRating}/5 candados
+                    {formData.safetyRating}/5
                   </span>
                 </div>
               </div>
