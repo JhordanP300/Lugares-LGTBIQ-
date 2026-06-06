@@ -6,7 +6,7 @@ import { Photo, fetchAllPhotos, adminDeletePhoto, fetchAllPhotosCount } from '@/
 import { useAuth } from '@/app/context/AuthContext';
 import { createNotification } from '@/app/lib/notifications-db';
 import ContentTable from '@/app/components/admin/ContentTable';
-import { Loader2, MessageSquare, Image } from 'lucide-react';
+import { Loader2, MessageSquare, Image, X } from 'lucide-react';
 
 export default function ModerationPage() {
   const { profile } = useAuth();
@@ -16,6 +16,7 @@ export default function ModerationPage() {
   const [loading, setLoading] = useState(true);
   const [commentsCount, setCommentsCount] = useState(0);
   const [photosCount, setPhotosCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   const loadComments = async () => {
     setLoading(true);
@@ -47,8 +48,16 @@ export default function ModerationPage() {
     }
   }, [activeTab]);
 
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
   const handleDeleteComment = async (comment: Comment) => {
     if (!confirm('¿Eliminar este comentario?')) return;
+    setError(null);
     const success = await adminDeleteComment(comment.id);
     if (success) {
       if (comment.userId && profile && comment.userId !== profile.id) {
@@ -61,11 +70,14 @@ export default function ModerationPage() {
       }
       setComments((prev) => prev.filter((c) => c.id !== comment.id));
       setCommentsCount((prev) => prev - 1);
+    } else {
+      setError('Error al eliminar comentario');
     }
   };
 
   const handleDeletePhoto = async (photo: Photo) => {
     if (!confirm('¿Eliminar esta foto?')) return;
+    setError(null);
     const success = await adminDeletePhoto(photo.id);
     if (success) {
       if (photo.userId && profile && photo.userId !== profile.id) {
@@ -78,6 +90,8 @@ export default function ModerationPage() {
       }
       setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
       setPhotosCount((prev) => prev - 1);
+    } else {
+      setError('Error al eliminar foto');
     }
   };
 
@@ -112,6 +126,15 @@ export default function ModerationPage() {
           Fotos ({photosCount})
         </button>
       </div>
+
+      {error && (
+        <div className='flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm'>
+          <span className='flex-1'>{error}</span>
+          <button onClick={() => setError(null)} className='p-0.5 hover:bg-red-100 rounded'>
+            <X size={16} />
+          </button>
+        </div>
+      )}
 
       {loading ? (
         <div className='flex items-center justify-center py-20'>

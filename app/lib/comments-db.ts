@@ -80,13 +80,15 @@ export async function deleteComment(id: string, userId: string): Promise<boolean
 }
 
 export async function adminDeleteComment(id: string): Promise<boolean> {
-  const supabase = createClient();
-  const { error } = await supabase
-    .from('comments')
-    .delete()
-    .eq('id', id);
-
-  return !error;
+  try {
+    const res = await fetch(`/api/comments?id=${id}`, {
+      method: 'DELETE',
+    });
+    return res.ok;
+  } catch (err) {
+    console.error('Error eliminando comentario:', err);
+    return false;
+  }
 }
 
 export async function fetchAllComments(

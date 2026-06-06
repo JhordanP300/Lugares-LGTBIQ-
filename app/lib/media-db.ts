@@ -139,29 +139,15 @@ export async function deletePhoto(id: string, userId: string): Promise<boolean> 
 }
 
 export async function adminDeletePhoto(id: string): Promise<boolean> {
-  const supabase = createClient();
-
-  const { data: photo } = await supabase
-    .from('photos')
-    .select('url')
-    .eq('id', id)
-    .single();
-
-  if (photo) {
-    const urlParts = photo.url.split('/');
-    const bucketIndex = urlParts.indexOf(BUCKET_NAME);
-    if (bucketIndex !== -1) {
-      const filePath = urlParts.slice(bucketIndex + 1).join('/');
-      await supabase.storage.from(BUCKET_NAME).remove([filePath]);
-    }
+  try {
+    const res = await fetch(`/api/photos?id=${id}`, {
+      method: 'DELETE',
+    });
+    return res.ok;
+  } catch (err) {
+    console.error('Error eliminando foto:', err);
+    return false;
   }
-
-  const { error } = await supabase
-    .from('photos')
-    .delete()
-    .eq('id', id);
-
-  return !error;
 }
 
 export async function fetchAllPhotos(
