@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createServerClient } from '@supabase/ssr';
 
+const COOKIE_OPTIONS = { path: '/', httpOnly: true, sameSite: 'lax' as const, secure: process.env.NODE_ENV === 'production' };
+
+function withCookies(body: unknown, status: number, pendingCookies: { name: string; value: string; options: Record<string, unknown> }[]) {
+  const res = NextResponse.json(body, { status });
+  pendingCookies.forEach(({ name, value, options }) => {
+    res.cookies.set(name, value, options);
+  });
+  return res;
+}
+
 export async function POST(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -10,37 +20,49 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing Supabase config' }, { status: 500 });
   }
 
-  // Verify admin is authenticated
+  const pendingCookies: { name: string; value: string; options: Record<string, unknown> }[] = [];
+
   const serverClient = createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
       getAll() { return request.cookies.getAll(); },
-      setAll() {},
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          pendingCookies.push({ name, value, options: options ?? COOKIE_OPTIONS });
+        });
+      },
     },
   });
 
   const { data: { user } } = await serverClient.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    return withCookies({ error: 'Not authenticated' }, 401, pendingCookies);
   }
 
   const adminClient = createAdminClient();
   if (!adminClient) {
-    return NextResponse.json(
-      { error: 'SUPABASE_SERVICE_ROLE_KEY not configured. Add it to .env.local' },
-      { status: 500 }
-    );
+    return withCookies({ error: 'SUPABASE_SERVICE_ROLE_KEY not configured.' }, 500, pendingCookies);
+  }
+
+  const { data: profile } = await adminClient
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile || profile.role !== 'admin') {
+    return withCookies({ error: 'Not authorized' }, 403, pendingCookies);
   }
 
   const body = await request.json();
   const { action, userId, role } = body;
 
   if (!userId) {
-    return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+    return withCookies({ error: 'Missing userId' }, 400, pendingCookies);
   }
 
   if (action === 'updateRole') {
     if (!role || !['user', 'admin'].includes(role)) {
-      return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
+      return withCookies({ error: 'Invalid role' }, 400, pendingCookies);
     }
 
     const { error } = await adminClient
@@ -50,17 +72,14 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('API: Error actualizando rol:', error.message);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return withCookies({ error: error.message }, 500, pendingCookies);
     }
 
-    return NextResponse.json({ success: true });
+    return withCookies({ success: true }, 200, pendingCookies);
   }
 
   if (action === 'deleteUser') {
-    // 1. Delete comments
     await adminClient.from('comments').delete().eq('user_id', userId);
-
-    // 2. Delete photos + storage files
     const { data: photos } = await adminClient
       .from('photos')
       .select('id, url')
@@ -76,25 +95,17 @@ export async function POST(request: NextRequest) {
       }
       await adminClient.from('photos').delete().eq('user_id', userId);
     }
-
-    // 3. Delete place_requests
     await adminClient.from('place_requests').delete().eq('user_id', userId);
-
-    // 4. Delete notifications
     await adminClient.from('notifications').delete().eq('user_id', userId);
-
-    // 5. Delete from public users table
     await adminClient.from('users').delete().eq('id', userId);
 
-    // 6. Delete from auth.users (Supabase Auth)
     const { error: authError } = await adminClient.auth.admin.deleteUser(userId);
     if (authError) {
       console.error('API: Error eliminando de auth.users:', authError.message);
-      // Continue even if auth deletion fails - main data is deleted
     }
 
-    return NextResponse.json({ success: true });
+    return withCookies({ success: true }, 200, pendingCookies);
   }
 
-  return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+  return withCookies({ error: 'Invalid action' }, 400, pendingCookies);
 }

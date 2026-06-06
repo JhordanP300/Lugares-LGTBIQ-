@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createServerClient } from '@supabase/ssr';
 
+const COOKIE_OPTIONS = { path: '/', httpOnly: true, sameSite: 'lax' as const, secure: process.env.NODE_ENV === 'production' };
+
+function withCookies(body: unknown, status: number, pending: { name: string; value: string; options: Record<string, unknown> }[]) {
+  const res = NextResponse.json(body, { status });
+  pending.forEach(({ name, value, options }) => res.cookies.set(name, value, options));
+  return res;
+}
+
 export async function DELETE(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -10,24 +18,27 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Missing Supabase config' }, { status: 500 });
   }
 
+  const pendingCookies: { name: string; value: string; options: Record<string, unknown> }[] = [];
+
   const serverClient = createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
       getAll() { return request.cookies.getAll(); },
-      setAll() {},
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          pendingCookies.push({ name, value, options: options ?? COOKIE_OPTIONS });
+        });
+      },
     },
   });
 
   const { data: { user } } = await serverClient.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    return withCookies({ error: 'Not authenticated' }, 401, pendingCookies);
   }
 
   const adminClient = createAdminClient();
   if (!adminClient) {
-    return NextResponse.json(
-      { error: 'SUPABASE_SERVICE_ROLE_KEY not configured. Add it to .env.local' },
-      { status: 500 }
-    );
+    return withCookies({ error: 'SUPABASE_SERVICE_ROLE_KEY not configured.' }, 500, pendingCookies);
   }
 
   const { data: profile } = await adminClient
@@ -37,14 +48,14 @@ export async function DELETE(request: NextRequest) {
     .single();
 
   if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
+    return withCookies({ error: 'Not authorized' }, 403, pendingCookies);
   }
 
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
 
   if (!id) {
-    return NextResponse.json({ error: 'Missing place id' }, { status: 400 });
+    return withCookies({ error: 'Missing place id' }, 400, pendingCookies);
   }
 
   const { error } = await adminClient
@@ -54,8 +65,8 @@ export async function DELETE(request: NextRequest) {
 
   if (error) {
     console.error('API: Error eliminando lugar:', error.message, error.details);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return withCookies({ error: error.message }, 500, pendingCookies);
   }
 
-  return NextResponse.json({ success: true });
+  return withCookies({ success: true }, 200, pendingCookies);
 }

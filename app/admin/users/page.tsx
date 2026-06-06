@@ -5,7 +5,7 @@ import { useAuth } from '@/app/context/AuthContext';
 import { UserProfile, fetchAllUsers, updateUserRole, adminDeleteUser } from '@/app/lib/users-db';
 import { createNotification } from '@/app/lib/notifications-db';
 import UserTable from '@/app/components/admin/UserTable';
-import { Loader2 } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 
 export default function UsersPage() {
   const { profile } = useAuth();
@@ -13,6 +13,7 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'admin' | 'user'>('all');
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const loadUsers = async () => {
     setLoading(true);
@@ -25,11 +26,19 @@ export default function UsersPage() {
     loadUsers();
   }, []);
 
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
   const handleRoleChange = async (userId: string, newRole: 'user' | 'admin') => {
     if (!profile || userId === profile.id) return;
     setProcessingId(userId);
-    const success = await updateUserRole(userId, newRole);
-    if (success) {
+    setError(null);
+    const result = await updateUserRole(userId, newRole);
+    if (result.success) {
       const user = users.find((u) => u.id === userId);
       if (user) {
         await createNotification(
@@ -42,6 +51,8 @@ export default function UsersPage() {
         );
       }
       loadUsers();
+    } else {
+      setError(result.error || 'Error al cambiar rol');
     }
     setProcessingId(null);
   };
@@ -49,9 +60,12 @@ export default function UsersPage() {
   const handleDelete = async (userId: string) => {
     if (!profile || userId === profile.id) return;
     setProcessingId(userId);
-    const success = await adminDeleteUser(userId);
-    if (success) {
+    setError(null);
+    const result = await adminDeleteUser(userId);
+    if (result.success) {
       loadUsers();
+    } else {
+      setError(result.error || 'Error al eliminar usuario');
     }
     setProcessingId(null);
   };
@@ -78,6 +92,15 @@ export default function UsersPage() {
           </select>
         </div>
       </div>
+
+      {error && (
+        <div className='flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm'>
+          <span className='flex-1'>{error}</span>
+          <button onClick={() => setError(null)} className='p-0.5 hover:bg-red-100 rounded'>
+            <X size={16} />
+          </button>
+        </div>
+      )}
 
       {loading ? (
         <div className='flex items-center justify-center py-20'>

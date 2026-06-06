@@ -52,31 +52,39 @@ export async function fetchUserById(userId: string): Promise<UserProfile | null>
 export async function updateUserRole(
   userId: string,
   role: 'user' | 'admin'
-): Promise<boolean> {
+): Promise<{ success: boolean; error?: string }> {
   try {
     const res = await fetch('/api/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'updateRole', userId, role }),
     });
-    return res.ok;
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      return { success: false, error: data.error || 'Error del servidor' };
+    }
+    return { success: true };
   } catch (err) {
     console.error('Error actualizando rol:', err);
-    return false;
+    return { success: false, error: 'Error de conexión' };
   }
 }
 
-export async function adminDeleteUser(userId: string): Promise<boolean> {
+export async function adminDeleteUser(userId: string): Promise<{ success: boolean; error?: string }> {
   try {
     const res = await fetch('/api/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'deleteUser', userId }),
     });
-    return res.ok;
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      return { success: false, error: data.error || 'Error del servidor' };
+    }
+    return { success: true };
   } catch (err) {
     console.error('Error eliminando usuario:', err);
-    return false;
+    return { success: false, error: 'Error de conexión' };
   }
 }
 
