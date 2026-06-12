@@ -16,6 +16,7 @@ export interface PlaceRequest {
   safetyRating: number;
   lgbtiqFriendly: boolean;
   accessibility: string[];
+  socialLinks: string[];
   status: 'pending' | 'approved' | 'rejected';
   adminNotes: string | null;
   reviewedBy: string | null;
@@ -40,6 +41,7 @@ interface PlaceRequestRow {
   safety_rating: number;
   lgbtiq_friendly: boolean;
   accessibility: string[];
+  social_links: string[] | null;
   status: string;
   admin_notes: string | null;
   reviewed_by: string | null;
@@ -70,6 +72,7 @@ function rowToRequest(row: PlaceRequestRow): PlaceRequest {
     safetyRating: row.safety_rating,
     lgbtiqFriendly: row.lgbtiq_friendly,
     accessibility: row.accessibility ?? [],
+    socialLinks: row.social_links ?? [],
     status: row.status as PlaceRequest['status'],
     adminNotes: row.admin_notes,
     reviewedBy: row.reviewed_by,
@@ -94,6 +97,7 @@ export function requestToPlace(request: PlaceRequest): Place {
     safetyRating: request.safetyRating,
     lgbtiqFriendly: request.lgbtiqFriendly,
     accessibility: request.accessibility,
+    socialLinks: request.socialLinks,
   };
 }
 
@@ -102,29 +106,45 @@ export async function insertPlaceRequest(
   userId: string
 ): Promise<PlaceRequest | null> {
   const supabase = createClient();
-  const { data, error } = await supabase
+  const insertData: Record<string, unknown> = {
+    user_id: userId,
+    name: place.name,
+    description: place.description,
+    category: place.category,
+    address: place.address,
+    barrio: place.barrio,
+    coordinates: { lat: place.coordinates[0], lng: place.coordinates[1] },
+    phone: place.phone ?? null,
+    website: place.website ?? null,
+    hours: place.hours ?? null,
+    safety_rating: place.safetyRating,
+    lgbtiq_friendly: place.lgbtiqFriendly,
+    accessibility: place.accessibility,
+    social_links: place.socialLinks ?? [],
+    status: 'pending',
+  };
+
+  let { data, error } = await supabase
     .from('place_requests')
-    .insert({
-      user_id: userId,
-      name: place.name,
-      description: place.description,
-      category: place.category,
-      address: place.address,
-      barrio: place.barrio,
-      coordinates: { lat: place.coordinates[0], lng: place.coordinates[1] },
-      phone: place.phone ?? null,
-      website: place.website ?? null,
-      hours: place.hours ?? null,
-      safety_rating: place.safetyRating,
-      lgbtiq_friendly: place.lgbtiqFriendly,
-      accessibility: place.accessibility,
-      status: 'pending',
-    })
+    .insert(insertData)
     .select()
     .single();
 
+  // Si falla por columna faltante (social_links), reintentar sin ella
+  if (error && error.message?.includes('social_links')) {
+    delete insertData.social_links;
+    const retry = await supabase
+      .from('place_requests')
+      .insert(insertData)
+      .select()
+      .single();
+    data = retry.data;
+    error = retry.error;
+  }
+
   if (error) {
-    console.error('Error insertando solicitud:', error.message, error.details, error.hint);
+    console.error('[insertPlaceRequest] Error insertando solicitud:', error.message, error.details, error.hint);
+    console.error('[insertPlaceRequest] Asegúrate de que la tabla "place_requests" existe con la columna social_links.');
     return null;
   }
   if (!data) return null;
@@ -180,7 +200,7 @@ export async function approveRequest(
 
   if (fetchError || !request) return false;
 
-  const placeRow = {
+  const placeRow: Record<string, unknown> = {
     name: request.name,
     description: request.description,
     category: request.category,
@@ -193,13 +213,23 @@ export async function approveRequest(
     safety_rating: request.safety_rating,
     lgbtiq_friendly: request.lgbtiq_friendly,
     accessibility: request.accessibility,
+    social_links: request.social_links ?? [],
     created_by: request.user_id,
     status: 'approved',
   };
 
-  const { error: insertError } = await supabase
+  let { error: insertError } = await supabase
     .from('places')
     .insert(placeRow);
+
+  // Si falla por columna faltante (social_links), reintentar sin ella
+  if (insertError && insertError.message?.includes('social_links')) {
+    delete placeRow.social_links;
+    const retry = await supabase
+      .from('places')
+      .insert(placeRow);
+    insertError = retry.error;
+  }
 
   if (insertError) return false;
 

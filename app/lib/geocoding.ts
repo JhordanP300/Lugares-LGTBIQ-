@@ -1,7 +1,9 @@
 /**
- * Servicio de geocodificación usando Nominatim (OpenStreetMap)
- * Documentación: https://nominatim.org/release-docs/latest/api/Search/
+ * Servicio de geocodificación usando Google Maps Geocoding API
+ * Documentación: https://developers.google.com/maps/documentation/geocoding/overview
  */
+
+const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 
 /**
  * Parsear coordenadas de Google Maps o formato directo
@@ -85,6 +87,7 @@ export interface GeocodingResult {
   displayName: string;
   address: {
     road?: string;
+    house_number?: string;
     neighbourhood?: string;
     suburb?: string;
     city?: string;
@@ -97,31 +100,127 @@ export interface GeocodingResult {
 }
 
 export interface Suggestion {
-  placeId: number;
+  placeId: string;
   displayName: string;
   lat: number;
   lng: number;
+  address?: {
+    road?: string;
+    house_number?: string;
+    neighbourhood?: string;
+    suburb?: string;
+    city?: string;
+    town?: string;
+    village?: string;
+  };
 }
 
 /**
- * Geocodificar una dirección (convertir texto a coordenadas)
+ * Formatear dirección al estilo colombiano usando componentes de Google
+ * Ejemplo: "Cra. 37 #8-88, El Poblado, Medellín"
+ */
+export function formatearDireccionColombiana(address: {
+  road?: string;
+  house_number?: string;
+  neighbourhood?: string;
+  suburb?: string;
+  city?: string;
+  town?: string;
+  village?: string;
+}, displayName: string): string {
+  // Si no hay componentes de dirección, usar el displayName truncado
+  if (!address.road && !address.neighbourhood && !address.suburb) {
+    const partes = displayName.split(',');
+    return partes.slice(0, 3).join(',').trim();
+  }
+
+  const partes: string[] = [];
+
+  // Calle/Número (ej: "Cra. 37 #8-88")
+  if (address.road) {
+    let calle = address.road;
+    if (address.house_number) {
+      calle += ` #${address.house_number}`;
+    }
+    partes.push(calle);
+  }
+
+  // Barrio/Vecindario
+  const barrio = address.neighbourhood || address.suburb;
+  if (barrio) {
+    partes.push(barrio);
+  }
+
+  // Ciudad
+  const ciudad = address.city || address.town || address.village;
+  if (ciudad) {
+    partes.push(ciudad);
+  }
+
+  return partes.length > 0 ? partes.join(', ') : displayName.split(',').slice(0, 3).join(',').trim();
+}
+
+/**
+ * Formatear dirección desde componentes de Google Maps
+ */
+function formatearDesdeGoogleComponents(components: Array<{ long_name: string; short_name: string; types: string[] }>): {
+  road?: string;
+  house_number?: string;
+  neighbourhood?: string;
+  suburb?: string;
+  city?: string;
+  town?: string;
+  village?: string;
+} {
+  const result: {
+    road?: string;
+    house_number?: string;
+    neighbourhood?: string;
+    suburb?: string;
+    city?: string;
+    town?: string;
+    village?: string;
+  } = {};
+
+  for (const component of components) {
+    const types = component.types;
+    if (types.includes('route')) {
+      result.road = component.long_name;
+    } else if (types.includes('street_number')) {
+      result.house_number = component.long_name;
+    } else if (types.includes('sublocality_level_1') || types.includes('sublocality')) {
+      result.neighbourhood = component.long_name;
+    } else if (types.includes('locality')) {
+      result.city = component.long_name;
+    } else if (types.includes('administrative_area_level_3')) {
+      if (!result.city) result.town = component.long_name;
+    } else if (types.includes('neighborhood') || types.includes('political')) {
+      if (!result.neighbourhood) result.neighbourhood = component.long_name;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Geocodificar una dirección usando Google Geocoding API
+ * Mucho más preciso que Nominatim para direcciones colombianas
  */
 export async function geocodificarDireccion(direccion: string): Promise<GeocodingResult | null> {
   if (!direccion || direccion.trim().length < 3) {
     return null;
   }
 
+  if (!GOOGLE_MAPS_API_KEY) {
+    console.error('Google Maps API key no configurada');
+    return null;
+  }
+
   try {
-    // Agregar "Medellín, Colombia" para mejorar la precisión
     const query = encodeURIComponent(`${direccion}, Medellín, Colombia`);
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1&addressdetails=1`;
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${GOOGLE_MAPS_API_KEY}&language=es&region=co`;
     
-    const response = await fetch(url, {
-      headers: {
-        'Accept-Language': 'es',
-        'User-Agent': 'LugaresLGBTIQ+App/1.0' // Requerido por Nominatim
-      }
-    });
+    const response = await fetch(url);
 
     if (!response.ok) {
       throw new Error('Error en la petición');
@@ -129,17 +228,18 @@ export async function geocodificarDireccion(direccion: string): Promise<Geocodin
 
     const data = await response.json();
     
-    if (data.length === 0) {
+    if (data.status !== 'OK' || !data.results || data.results.length === 0) {
       return null;
     }
 
-    const result = data[0];
+    const result = data.results[0];
+    const location = result.geometry.location;
     
     return {
-      lat: parseFloat(result.lat),
-      lng: parseFloat(result.lon),
-      displayName: result.display_name,
-      address: result.address || {}
+      lat: location.lat,
+      lng: location.lng,
+      displayName: result.formatted_address,
+      address: formatearDesdeGoogleComponents(result.address_components),
     };
   } catch (error) {
     console.error('Error al geocodificar:', error);
@@ -148,23 +248,23 @@ export async function geocodificarDireccion(direccion: string): Promise<Geocodin
 }
 
 /**
- * Obtener sugerencias de direcciones (autocompletado)
+ * Obtener sugerencias de direcciones usando Google Places Autocomplete
  */
 export async function obtenerSugerencias(busqueda: string): Promise<Suggestion[]> {
   if (!busqueda || busqueda.trim().length < 3) {
     return [];
   }
 
+  if (!GOOGLE_MAPS_API_KEY) {
+    console.error('Google Maps API key no configurada');
+    return [];
+  }
+
   try {
-    const query = encodeURIComponent(`${busqueda}, Medellín, Colombia`);
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=5&addressdetails=1`;
+    const input = encodeURIComponent(`${busqueda}, Medellín, Colombia`);
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${input}&key=${GOOGLE_MAPS_API_KEY}&language=es&region=co`;
     
-    const response = await fetch(url, {
-      headers: {
-        'Accept-Language': 'es',
-        'User-Agent': 'LugaresLGBTIQ+App/1.0'
-      }
-    });
+    const response = await fetch(url);
 
     if (!response.ok) {
       throw new Error('Error en la petición');
@@ -172,11 +272,21 @@ export async function obtenerSugerencias(busqueda: string): Promise<Suggestion[]
 
     const data = await response.json();
     
-    return data.map((item: any) => ({
+    if (data.status !== 'OK' || !data.results) {
+      return [];
+    }
+
+    return data.results.slice(0, 5).map((item: {
+      place_id: string;
+      formatted_address: string;
+      geometry: { location: { lat: number; lng: number } };
+      address_components: Array<{ long_name: string; short_name: string; types: string[] }>;
+    }) => ({
       placeId: item.place_id,
-      displayName: item.display_name,
-      lat: parseFloat(item.lat),
-      lng: parseFloat(item.lon)
+      displayName: item.formatted_address,
+      lat: item.geometry.location.lat,
+      lng: item.geometry.location.lng,
+      address: formatearDesdeGoogleComponents(item.address_components),
     }));
   } catch (error) {
     console.error('Error al obtener sugerencias:', error);
@@ -185,25 +295,30 @@ export async function obtenerSugerencias(busqueda: string): Promise<Suggestion[]
 }
 
 /**
- * Obtener dirección inversa (coordenadas a texto)
+ * Obtener dirección inversa usando Google Reverse Geocoding
  */
 export async function obtenerDireccionInversa(lat: number, lng: number): Promise<string | null> {
+  if (!GOOGLE_MAPS_API_KEY) {
+    console.error('Google Maps API key no configurada');
+    return null;
+  }
+
   try {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=es`;
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_MAPS_API_KEY}&language=es&region=co`;
     
-    const response = await fetch(url, {
-      headers: {
-        'Accept-Language': 'es',
-        'User-Agent': 'LugaresLGBTIQ+App/1.0'
-      }
-    });
+    const response = await fetch(url);
 
     if (!response.ok) {
       throw new Error('Error en la petición');
     }
 
     const data = await response.json();
-    return data.display_name || null;
+    
+    if (data.status !== 'OK' || !data.results || data.results.length === 0) {
+      return null;
+    }
+
+    return data.results[0].formatted_address || null;
   } catch (error) {
     console.error('Error al obtener dirección inversa:', error);
     return null;

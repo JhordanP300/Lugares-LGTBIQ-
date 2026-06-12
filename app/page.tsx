@@ -271,6 +271,10 @@ export default function Home() {
                 <span className='text-gray-700'>📍 Lugares Emblemáticos</span>
               </div>
               <div className='flex items-center gap-2'>
+                <div className='w-4 h-4 rounded-full' style={{ backgroundColor: '#FF69B4' }}></div>
+                <span className='text-gray-700'>🏳️‍🌈 Lugares Simbólicos</span>
+              </div>
+              <div className='flex items-center gap-2'>
                 <div className='w-4 h-4 rounded-full bg-green-500'></div>
                 <span className='text-gray-700'>🌳 Parques</span>
               </div>
@@ -339,11 +343,9 @@ export default function Home() {
         onClose={() => setIsAddPlaceOpen(false)}
         onAddPlace={async (newPlace) => {
           if (isAdmin) {
-            // Admin agrega directamente
-            addPlace(newPlace, user?.id);
-            alert('¡Lugar agregado exitosamente!');
+            const placeId = await addPlace(newPlace, user?.id);
+            return placeId;
           } else if (user) {
-            // Usuario envía solicitud
             const request = await insertPlaceRequest(newPlace, user.id);
             if (request) {
               alert('¡Solicitud enviada! El equipo de administración evaluará tu lugar y recibirás una notificación cuando sea revisado.');
@@ -351,6 +353,7 @@ export default function Home() {
               alert('Hubo un error al enviar la solicitud. Inténtalo de nuevo.');
             }
           }
+          return null;
         }}
       />
     </div>

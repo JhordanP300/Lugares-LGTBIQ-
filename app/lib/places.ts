@@ -2,7 +2,7 @@ export interface Place {
   id: string;
   name: string;
   description: string;
-  category: 'cafe' | 'bar' | 'lugar' | 'parque' | 'culturalCenter' | 'health' | 'other';
+  category: 'cafe' | 'bar' | 'lugar' | 'lugarSimbolico' | 'parque' | 'culturalCenter' | 'health' | 'other';
   address: string;
   barrio: string;
   coordinates: [number, number]; // [lat, lng]
@@ -12,6 +12,7 @@ export interface Place {
   safetyRating: number; // 1-5
   lgbtiqFriendly: boolean;
   accessibility: string[];
+  socialLinks?: string[];
 }
 
 export interface Comment {
@@ -181,6 +182,7 @@ export const categoryLabels: Record<Place['category'], string> = {
   cafe: '☕ Café',
   bar: '🍹 Bar',
   lugar: '📍 Lugar Emblemático',
+  lugarSimbolico: '🏳️‍🌈 Lugar Simbólico',
   parque: '🌳 Parque',
   culturalCenter: '🎨 Centro Cultural',
   health: '⚕️ Salud',
@@ -191,6 +193,7 @@ export const categoryColors: Record<Place['category'], string> = {
   cafe: '#FF0000',     // Rojo
   bar: '#FF7F00',      // Naranja
   lugar: '#FFFF00',    // Amarillo
+  lugarSimbolico: '#FF69B4', // Rosa
   parque: '#00FF00',   // Verde
   culturalCenter: '#0000FF', // Azul
   health: '#4B0082',   // Índigo

@@ -11,13 +11,13 @@ import { MapPin, Edit2, Trash2, Loader2, X, ShieldCheck, Shield, Save } from 'lu
 type PlaceWithMeta = Place & { createdBy: string | null; createdAt: string };
 
 const categories = [
-  { value: 'cafe', label: 'Café' },
-  { value: 'bar', label: 'Bar' },
-  { value: 'lugar', label: 'Lugar Emblemático' },
-  { value: 'parque', label: 'Parque' },
-  { value: 'culturalCenter', label: 'Centro Cultural' },
-  { value: 'health', label: 'Salud' },
-  { value: 'other', label: 'Otro' },
+  { value: 'cafe', label: '☕ Café' },
+  { value: 'bar', label: '🍹 Bar' },
+  { value: 'lugar', label: '📍 Lugar Emblemático' },
+  { value: 'lugarSimbolico', label: '🏳️‍🌈 Lugar Simbólico' },
+  { value: 'parque', label: '🌳 Parque' },
+  { value: 'culturalCenter', label: '🎨 Centro Cultural' },
+  { value: 'health', label: '⚕️ Salud' },
 ];
 
 const accessibilityOptions = [

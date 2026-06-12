@@ -15,6 +15,7 @@ interface PlaceRow {
   safety_rating: number;
   lgbtiq_friendly: boolean;
   accessibility: string[];
+  social_links: string[] | null;
   created_by: string | null;
   status: string;
   created_at: string;
@@ -42,6 +43,7 @@ function rowToPlace(row: PlaceRow): Place {
     safetyRating: row.safety_rating,
     lgbtiqFriendly: row.lgbtiq_friendly,
     accessibility: row.accessibility ?? [],
+    socialLinks: row.social_links ?? [],
   };
 }
 
@@ -59,6 +61,7 @@ function placeToRow(place: Omit<Place, 'id'>, userId?: string): Omit<PlaceRow, '
     safety_rating: place.safetyRating,
     lgbtiq_friendly: place.lgbtiqFriendly,
     accessibility: place.accessibility,
+    social_links: place.socialLinks ?? [],
     created_by: userId ?? null,
     status: 'approved',
   };
@@ -72,7 +75,12 @@ export async function fetchPlaces(): Promise<Place[]> {
     .eq('status', 'approved')
     .order('created_at', { ascending: false });
 
-  if (error || !data) return [];
+  if (error) {
+    console.error('[fetchPlaces] Error leyendo lugares de Supabase:', error.message, error.details);
+    console.error('[fetchPlaces] Asegúrate de que la tabla "places" existe. Ejecuta lib/supabase/schema-full.sql en SQL Editor.');
+    return [];
+  }
+  if (!data) return [];
   return data.map(rowToPlace);
 }
 
@@ -80,13 +88,29 @@ export async function insertPlace(place: Omit<Place, 'id'>, userId: string): Pro
   const supabase = createClient();
   const row = placeToRow(place, userId);
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from('places')
     .insert(row)
     .select()
     .single();
 
-  if (error || !data) return null;
+  // Si falla por columna faltante (social_links), reintentar sin ella
+  if (error && error.message?.includes('social_links')) {
+    const { social_links, ...rowWithoutSocial } = row;
+    const retry = await supabase
+      .from('places')
+      .insert(rowWithoutSocial)
+      .select()
+      .single();
+    data = retry.data;
+    error = retry.error;
+  }
+
+  if (error) {
+    console.error('Error insertando lugar en Supabase:', error.message, error.details, error.hint);
+    return null;
+  }
+  if (!data) return null;
   return rowToPlace(data as PlaceRow);
 }
 
@@ -122,6 +146,7 @@ export async function adminUpdatePlace(
   if (place.safetyRating !== undefined) updateData.safety_rating = place.safetyRating;
   if (place.lgbtiqFriendly !== undefined) updateData.lgbtiq_friendly = place.lgbtiqFriendly;
   if (place.accessibility !== undefined) updateData.accessibility = place.accessibility;
+  if (place.socialLinks !== undefined) updateData.social_links = place.socialLinks;
 
   const { data, error } = await supabase
     .from('places')

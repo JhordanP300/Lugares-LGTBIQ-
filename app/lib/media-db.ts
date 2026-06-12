@@ -61,7 +61,8 @@ export async function uploadFile(
     });
 
   if (error) {
-    console.error('Upload error:', error);
+    console.error('[uploadFile] Error subiendo archivo a Supabase Storage:', error.message, error);
+    console.error('[uploadFile] Verifica que el bucket "place-media" exista y que estés autenticado.');
     return null;
   }
 
@@ -83,7 +84,11 @@ export async function fetchPhotos(placeId: string): Promise<Photo[]> {
     .eq('place_id', placeId)
     .order('created_at', { ascending: false });
 
-  if (error || !data) return [];
+  if (error) {
+    console.error('[fetchPhotos] Error leyendo fotos:', error.message, error.details);
+    return [];
+  }
+  if (!data) return [];
   return data.map(rowToPhoto);
 }
 
@@ -107,7 +112,12 @@ export async function insertPhoto(
     .select()
     .single();
 
-  if (error || !data) return null;
+  if (error) {
+    console.error('[insertPhoto] Error insertando foto:', error.message, error.details, error.hint);
+    console.error('[insertPhoto] Asegúrate de que la tabla "photos" existe. Ejecuta lib/supabase/schema-full.sql en SQL Editor.');
+    return null;
+  }
+  if (!data) return null;
   return rowToPhoto(data as PhotoRow);
 }
 

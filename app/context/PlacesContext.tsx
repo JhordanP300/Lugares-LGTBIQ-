@@ -32,7 +32,7 @@ function savePlacesToStorage(places: Place[]) {
 
 interface PlacesContextType {
   places: Place[];
-  addPlace: (place: Omit<Place, 'id'>, userId?: string) => Promise<void>;
+  addPlace: (place: Omit<Place, 'id'>, userId?: string) => Promise<string | null>;
   deletePlace: (id: string) => Promise<void>;
   loading: boolean;
 }
@@ -72,20 +72,26 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
     }
   }, [places, loaded]);
 
-  const addPlace = useCallback(async (newPlace: Omit<Place, 'id'>, userId?: string) => {
+  const addPlace = useCallback(async (newPlace: Omit<Place, 'id'>, userId?: string): Promise<string | null> => {
     if (userId) {
       const dbPlace = await dbInsertPlace(newPlace, userId);
       if (dbPlace) {
         setPlaces(prev => [dbPlace, ...prev]);
-        return;
+        return dbPlace.id;
       }
+      console.error('[PlacesContext] DB insert falló. Causas posibles:');
+      console.error('1. La tabla "places" no existe en Supabase. Ejecuta lib/supabase/schema-full.sql en SQL Editor.');
+      console.error('2. RLS bloquea el INSERT. Verifica las políticas de la tabla places.');
+      console.error('3. Falta la columna social_links. Ejecuta lib/supabase/add-social-links.sql en SQL Editor.');
     }
     // Fallback: local only
+    console.warn('[PlacesContext] Usando fallback localStorage (el lugar NO se guarda en Supabase)');
     const localPlace: Place = {
       ...newPlace,
       id: crypto.randomUUID?.() || Date.now().toString(36),
     };
     setPlaces(prev => [localPlace, ...prev]);
+    return localPlace.id;
   }, []);
 
   const deletePlaceFn = useCallback(async (id: string) => {
