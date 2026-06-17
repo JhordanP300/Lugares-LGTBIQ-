@@ -8,6 +8,7 @@ export interface Photo {
   thumbnailUrl: string | null;
   author: string;
   date: string;
+  type: 'admin' | 'user';
 }
 
 interface PhotoRow {
@@ -18,6 +19,7 @@ interface PhotoRow {
   thumbnail_url: string | null;
   author_name: string | null;
   created_at: string;
+  type: string;
 }
 
 function rowToPhoto(row: PhotoRow): Photo {
@@ -29,6 +31,7 @@ function rowToPhoto(row: PhotoRow): Photo {
     thumbnailUrl: row.thumbnail_url,
     author: row.author_name ?? 'Anónimo',
     date: row.created_at.split('T')[0],
+    type: row.type === 'admin' ? 'admin' : 'user',
   };
 }
 
@@ -92,12 +95,47 @@ export async function fetchPhotos(placeId: string): Promise<Photo[]> {
   return data.map(rowToPhoto);
 }
 
+export async function fetchAdminPhotos(placeId: string): Promise<Photo[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('photos')
+    .select('*')
+    .eq('place_id', placeId)
+    .eq('type', 'admin')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('[fetchAdminPhotos] Error leyendo fotos admin:', error.message, error.details);
+    return [];
+  }
+  if (!data) return [];
+  return data.map(rowToPhoto);
+}
+
+export async function fetchUserPhotos(placeId: string): Promise<Photo[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('photos')
+    .select('*')
+    .eq('place_id', placeId)
+    .eq('type', 'user')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('[fetchUserPhotos] Error leyendo fotos de usuarios:', error.message, error.details);
+    return [];
+  }
+  if (!data) return [];
+  return data.map(rowToPhoto);
+}
+
 export async function insertPhoto(
   placeId: string,
   url: string,
   thumbnailUrl: string | null,
   authorName: string,
-  userId: string | null
+  userId: string | null,
+  type: 'admin' | 'user' = 'user'
 ): Promise<Photo | null> {
   const supabase = createClient();
   const { data, error } = await supabase
@@ -108,6 +146,7 @@ export async function insertPhoto(
       thumbnail_url: thumbnailUrl,
       author_name: authorName,
       user_id: userId,
+      type,
     })
     .select()
     .single();

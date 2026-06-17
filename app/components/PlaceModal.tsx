@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Place, categoryLabels } from '@/app/lib/places';
 import { X, Phone, Globe, Clock, MapPin, ShieldCheck, Shield, Heart, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
-import { fetchPhotos, Photo } from '@/app/lib/media-db';
+import { fetchAdminPhotos, Photo } from '@/app/lib/media-db';
 import Comments from './Comments';
 import Toast from './Toast';
 import { useFavorites } from '@/app/hooks/useFavorites';
@@ -52,7 +52,7 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
   useEffect(() => {
     if (isOpen && place.id) {
       setLoadingPhotos(true);
-      fetchPhotos(place.id).then((data) => {
+      fetchAdminPhotos(place.id).then((data) => {
         setPhotos(data);
         setLoadingPhotos(false);
       });
@@ -338,7 +338,6 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
               className='max-h-[80vh] object-contain rounded-lg'
             />
             <div className='bg-gray-900 text-white p-3 rounded-b-lg'>
-              <p className='font-semibold text-sm'>{photos[selectedPhoto].author}</p>
               <p className='text-xs text-gray-400'>{photos[selectedPhoto].date}</p>
             </div>
           </div>

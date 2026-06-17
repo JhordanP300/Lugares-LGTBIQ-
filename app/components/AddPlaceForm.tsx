@@ -336,7 +336,8 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
           uploadResult.url,
           uploadResult.thumbnailUrl,
           authorName,
-          userId || null
+          userId || null,
+          'admin'
         );
       }
       

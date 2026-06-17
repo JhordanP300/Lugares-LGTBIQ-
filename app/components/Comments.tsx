@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Star, Send, Trash2, User, Upload, X, Video, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 import { fetchComments, insertComment, deleteComment, Comment } from '@/app/lib/comments-db';
-import { fetchPhotos, insertPhoto, uploadFile, deletePhoto, Photo } from '@/app/lib/media-db';
+import { fetchUserPhotos, insertPhoto, uploadFile, deletePhoto, Photo } from '@/app/lib/media-db';
 
 interface CommentsProps {
   placeId: string;
@@ -31,7 +31,7 @@ export default function Comments({ placeId }: CommentsProps) {
       setLoadingData(true);
       const [c, p] = await Promise.all([
         fetchComments(placeId),
-        fetchPhotos(placeId),
+        fetchUserPhotos(placeId),
       ]);
       setComments(c);
       setPhotos(p);
@@ -103,7 +103,8 @@ export default function Comments({ placeId }: CommentsProps) {
       uploadResult.url,
       uploadResult.thumbnailUrl,
       getAuthorName(),
-      user.id
+      user.id,
+      'user'
     );
 
     if (created) {
