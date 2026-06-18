@@ -49,11 +49,10 @@ export async function uploadFile(
   file: File,
   placeId: string,
   userId: string
-): Promise<{ url: string; thumbnailUrl: string | null } | null> {
+): Promise<{ url: string; thumbnailUrl: string | null }> {
   const supabase = createClient();
   const ext = getFileExtension(file);
   const timestamp = Date.now();
-  const folder = isVideo(file) ? 'videos' : 'photos';
   const path = `${placeId}/${userId}_${timestamp}.${ext}`;
 
   const { error } = await supabase.storage
@@ -64,9 +63,7 @@ export async function uploadFile(
     });
 
   if (error) {
-    console.error('[uploadFile] Error subiendo archivo a Supabase Storage:', error.message, error);
-    console.error('[uploadFile] Verifica que el bucket "place-media" exista y que estés autenticado.');
-    return null;
+    throw new Error(`Error subiendo archivo: ${error.message}`);
   }
 
   const { data: urlData } = supabase.storage

@@ -83,32 +83,26 @@ export default function Comments({ placeId }: CommentsProps) {
     const file = e.target.files?.[0];
     if (!file || !user?.id) return;
 
-    const maxSize = file.type.startsWith('video/') ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
-    if (file.size > maxSize) {
-      alert(`El archivo es demasiado grande. Máximo ${file.type.startsWith('video/') ? '50MB' : '10MB'}`);
-      return;
-    }
-
     setUploading(true);
 
-    const uploadResult = await uploadFile(file, placeId, user.id);
-    if (!uploadResult) {
+    try {
+      const uploadResult = await uploadFile(file, placeId, user.id);
+
+      const created = await insertPhoto(
+        placeId,
+        uploadResult.url,
+        uploadResult.thumbnailUrl,
+        getAuthorName(),
+        user.id,
+        'user'
+      );
+
+      if (created) {
+        setPhotos(prev => [created, ...prev]);
+      }
+    } catch (err) {
+      console.error('Error subiendo archivo:', err);
       alert('Error al subir el archivo. Intenta de nuevo.');
-      setUploading(false);
-      return;
-    }
-
-    const created = await insertPhoto(
-      placeId,
-      uploadResult.url,
-      uploadResult.thumbnailUrl,
-      getAuthorName(),
-      user.id,
-      'user'
-    );
-
-    if (created) {
-      setPhotos(prev => [created, ...prev]);
     }
     setUploading(false);
     e.target.value = '';

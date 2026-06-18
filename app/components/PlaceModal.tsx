@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Place, categoryLabels } from '@/app/lib/places';
-import { X, Phone, Globe, Clock, MapPin, ShieldCheck, Shield, Heart, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Phone, Globe, Clock, MapPin, ShieldCheck, Shield, Heart, ExternalLink, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { fetchAdminPhotos, Photo } from '@/app/lib/media-db';
 import Comments from './Comments';
 import Toast from './Toast';
@@ -12,6 +12,10 @@ interface PlaceModalProps {
   place: Place;
   isOpen: boolean;
   onClose: () => void;
+}
+
+function isVideoUrl(url: string): boolean {
+  return /\.(mp4|mov|avi|webm|mkv|3gp)(\?|$)/i.test(url) || url.includes('/videos/');
 }
 
 function getSocialIcon(url: string) {
@@ -164,7 +168,7 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
                 </div>
               ) : photos.length > 0 ? (
                 <div>
-                  <h3 className='font-bold text-gray-900 mb-3'>📸 Fotos</h3>
+                  <h3 className='font-bold text-gray-900 mb-3'>📸 Fotos y Videos</h3>
                   <div className='grid grid-cols-3 sm:grid-cols-4 gap-2'>
                     {photos.map((photo, index) => (
                       <button
@@ -172,12 +176,27 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
                         onClick={() => setSelectedPhoto(index)}
                         className='relative aspect-square rounded-lg overflow-hidden group cursor-pointer'
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={photo.thumbnailUrl || photo.url}
-                          alt={`Foto por ${photo.author}`}
-                          className='w-full h-full object-cover group-hover:scale-110 transition-transform duration-300'
-                        />
+                        {isVideoUrl(photo.url) ? (
+                          <>
+                            <video
+                              src={photo.url}
+                              className='w-full h-full object-cover group-hover:scale-110 transition-transform duration-300'
+                              muted
+                            />
+                            <div className='absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors'>
+                              <div className='bg-white/90 rounded-full p-2'>
+                                <Play size={20} className='text-purple-600 ml-0.5' fill='currentColor' />
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={photo.thumbnailUrl || photo.url}
+                            alt={`Foto por ${photo.author}`}
+                            className='w-full h-full object-cover group-hover:scale-110 transition-transform duration-300'
+                          />
+                        )}
                         <div className='absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors' />
                       </button>
                     ))}
@@ -331,12 +350,21 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
             className='relative max-w-4xl max-h-[90vh]'
             onClick={(e) => e.stopPropagation()}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={photos[selectedPhoto].url}
-              alt={`Por ${photos[selectedPhoto].author}`}
-              className='max-h-[80vh] object-contain rounded-lg'
-            />
+            {isVideoUrl(photos[selectedPhoto].url) ? (
+              <video
+                src={photos[selectedPhoto].url}
+                controls
+                autoPlay
+                className='max-h-[80vh] rounded-lg'
+              />
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={photos[selectedPhoto].url}
+                alt={`Por ${photos[selectedPhoto].author}`}
+                className='max-h-[80vh] object-contain rounded-lg'
+              />
+            )}
             <div className='bg-gray-900 text-white p-3 rounded-b-lg'>
               <p className='text-xs text-gray-400'>{photos[selectedPhoto].date}</p>
             </div>

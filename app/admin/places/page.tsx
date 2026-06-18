@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Place, categoryLabels } from '@/app/lib/places';
 import { fetchAllPlaces, adminUpdatePlace, deletePlace } from '@/app/lib/places-db';
 import { cargarBarrios, Barrio } from '@/app/lib/barrios';
 import { useAuth } from '@/app/context/AuthContext';
 import { createNotification } from '@/app/lib/notifications-db';
-import { MapPin, Edit2, Trash2, Loader2, X, ShieldCheck, Shield, Save } from 'lucide-react';
+import { fetchAdminPhotos, uploadFile, insertPhoto, adminDeletePhoto, Photo } from '@/app/lib/media-db';
+import { MapPin, Edit2, Trash2, Loader2, X, ShieldCheck, Shield, Save, Plus, Upload } from 'lucide-react';
 
 type PlaceWithMeta = Place & { createdBy: string | null; createdAt: string };
 
@@ -43,6 +44,16 @@ export default function AdminPlacesPage() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // Social links
+  const [socialLinks, setSocialLinks] = useState<string[]>([]);
+
+  // Photo management
+  const [placePhotos, setPlacePhotos] = useState<Photo[]>([]);
+  const [loadingPhotos, setLoadingPhotos] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
   const loadPlaces = async () => {
     setLoading(true);
     const data = await fetchAllPlaces();
@@ -55,17 +66,26 @@ export default function AdminPlacesPage() {
     cargarBarrios().then(setBarrios);
   }, []);
 
-  const openEdit = (place: PlaceWithMeta) => {
+  const openEdit = async (place: PlaceWithMeta) => {
     setEditingPlace(place);
     setEditData({ ...place });
+    setSocialLinks(place.socialLinks || []);
     setSaveError(null);
+    setUploadError(null);
+
+    // Load photos for this place
+    setLoadingPhotos(true);
+    const photos = await fetchAdminPhotos(place.id);
+    setPlacePhotos(photos);
+    setLoadingPhotos(false);
   };
 
   const handleSave = async () => {
     if (!editingPlace || !profile) return;
     setSaving(true);
     setSaveError(null);
-    const success = await adminUpdatePlace(editingPlace.id, editData);
+    const filteredSocialLinks = socialLinks.filter(link => link.trim() !== '');
+    const success = await adminUpdatePlace(editingPlace.id, { ...editData, socialLinks: filteredSocialLinks });
     if (success) {
       if (editingPlace.createdBy && editingPlace.createdBy !== profile.id) {
         await createNotification(
@@ -108,6 +128,67 @@ export default function AdminPlacesPage() {
         ? prev.accessibility.filter((a) => a !== item)
         : [...(prev.accessibility || []), item],
     }));
+  };
+
+  const addSocialLink = () => {
+    setSocialLinks((prev) => [...prev, '']);
+  };
+
+  const updateSocialLink = (index: number, value: string) => {
+    setSocialLinks((prev) => prev.map((link, i) => (i === index ? value : link)));
+  };
+
+  const removeSocialLink = (index: number) => {
+    setSocialLinks((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !editingPlace || !profile) return;
+
+    setUploadingPhoto(true);
+    setUploadError(null);
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      try {
+        const uploadResult = await uploadFile(file, editingPlace.id, profile.id);
+        await insertPhoto(
+          editingPlace.id,
+          uploadResult.url,
+          uploadResult.thumbnailUrl,
+          profile.name || 'Admin',
+          profile.id,
+          'admin'
+        );
+        successCount++;
+      } catch (err) {
+        console.error('Error subiendo archivo:', err);
+        errorCount++;
+      }
+    }
+
+    if (errorCount > 0 && successCount === 0) {
+      setUploadError(`Error al subir ${errorCount} archivo(s). Verifica que el archivo no sea demasiado grande.`);
+    } else if (errorCount > 0) {
+      setUploadError(`${successCount} subido(s), ${errorCount} fallaron.`);
+    }
+
+    // Refresh photos
+    const photos = await fetchAdminPhotos(editingPlace.id);
+    setPlacePhotos(photos);
+    setUploadingPhoto(false);
+    if (photoInputRef.current) photoInputRef.current.value = '';
+  };
+
+  const handleDeletePhoto = async (photoId: string) => {
+    if (!confirm('¿Eliminar esta foto?')) return;
+    const success = await adminDeletePhoto(photoId);
+    if (success && editingPlace) {
+      setPlacePhotos((prev) => prev.filter((p) => p.id !== photoId));
+    }
   };
 
   return (
@@ -350,6 +431,120 @@ export default function AdminPlacesPage() {
                     </label>
                   ))}
                 </div>
+              </div>
+
+              {/* Redes Sociales */}
+              <div>
+                <label className='block text-sm font-semibold text-gray-700 mb-2'>
+                  Redes Sociales
+                </label>
+                <p className='text-xs text-gray-500 mb-3'>
+                  Links de redes sociales del lugar (Instagram, Facebook, TikTok, etc.)
+                </p>
+                <div className='space-y-2'>
+                  {socialLinks.map((link, index) => (
+                    <div key={index} className='flex items-center gap-2'>
+                      <input
+                        type='url'
+                        value={link}
+                        onChange={(e) => updateSocialLink(index, e.target.value)}
+                        placeholder='ej: https://instagram.com/milugar'
+                        className='flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-sm'
+                      />
+                      <button
+                        type='button'
+                        onClick={() => removeSocialLink(index)}
+                        className='p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0'
+                        title='Eliminar enlace'
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type='button'
+                  onClick={addSocialLink}
+                  className='mt-2 flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-600 hover:bg-purple-50 rounded-lg transition-colors border border-dashed border-purple-300 w-full justify-center'
+                >
+                  <Plus size={16} />
+                  Agregar red social
+                </button>
+              </div>
+
+              {/* Fotos y Videos */}
+              <div>
+                <label className='block text-sm font-semibold text-gray-700 mb-2'>
+                  Fotos y Videos del Lugar
+                </label>
+                <input
+                  ref={photoInputRef}
+                  type='file'
+                  accept='image/*,video/*'
+                  multiple
+                  onChange={handlePhotoUpload}
+                  className='hidden'
+                />
+                <button
+                  type='button'
+                  onClick={() => photoInputRef.current?.click()}
+                  disabled={uploadingPhoto}
+                  className='w-full border-2 border-dashed border-purple-300 rounded-xl p-4 text-center hover:border-purple-500 hover:bg-purple-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                >
+                  {uploadingPhoto ? (
+                    <div className='flex items-center justify-center gap-2'>
+                      <Loader2 className='animate-spin text-purple-600' size={20} />
+                      <span className='text-sm text-purple-700'>Subiendo...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload size={24} className='mx-auto text-purple-400 mb-1' />
+                      <p className='text-sm font-medium text-gray-700'>Agregar fotos o videos</p>
+                      <p className='text-xs text-gray-500'>JPG, PNG, MP4, MOV</p>
+                    </>
+                  )}
+                </button>
+
+                {uploadError && (
+                  <p className='text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mt-2'>{uploadError}</p>
+                )}
+
+                {loadingPhotos ? (
+                  <div className='flex items-center justify-center py-4'>
+                    <Loader2 className='animate-spin text-gray-400' size={20} />
+                  </div>
+                ) : placePhotos.length > 0 ? (
+                  <div className='grid grid-cols-3 sm:grid-cols-4 gap-3 mt-3'>
+                    {placePhotos.map((photo) => (
+                      <div key={photo.id} className='relative group aspect-square rounded-lg overflow-hidden bg-gray-100'>
+                        {/\.(mp4|mov|avi|webm|mkv|3gp)(\?|$)/i.test(photo.url) || photo.url.includes('/videos/') ? (
+                          <video
+                            src={photo.url}
+                            className='w-full h-full object-cover'
+                            muted
+                          />
+                        ) : (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={photo.thumbnailUrl || photo.url}
+                            alt='Media del lugar'
+                            className='w-full h-full object-cover'
+                          />
+                        )}
+                        <button
+                          type='button'
+                          onClick={() => handleDeletePhoto(photo.id)}
+                          className='absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity'
+                          title='Eliminar'
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className='text-xs text-gray-400 text-center py-3'>No hay archivos multimedia</p>
+                )}
               </div>
             </div>
 

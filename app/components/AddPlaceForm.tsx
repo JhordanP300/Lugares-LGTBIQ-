@@ -266,10 +266,10 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
 
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const imageFiles = files.filter(f => f.type.startsWith('image/'));
+    const mediaFiles = files.filter(f => f.type.startsWith('image/') || f.type.startsWith('video/'));
     
-    const newPreviewUrls = imageFiles.map(f => URL.createObjectURL(f));
-    setSelectedFiles(prev => [...prev, ...imageFiles]);
+    const newPreviewUrls = mediaFiles.map(f => URL.createObjectURL(f));
+    setSelectedFiles(prev => [...prev, ...mediaFiles]);
     setPhotoPreviewUrls(prev => [...prev, ...newPreviewUrls]);
     e.target.value = '';
   };
@@ -328,9 +328,8 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
 
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i];
-      const uploadResult = await uploadFile(file, placeId, userId);
-      
-      if (uploadResult) {
+      try {
+        const uploadResult = await uploadFile(file, placeId, userId);
         await insertPhoto(
           placeId,
           uploadResult.url,
@@ -339,6 +338,8 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
           userId || null,
           'admin'
         );
+      } catch (err) {
+        console.error('Error subiendo archivo:', err);
       }
       
       setUploadProgress({ done: i + 1, total: selectedFiles.length });
@@ -799,7 +800,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
           {/* PASO 4: Fotos */}
           {step === 4 && (
             <div className='space-y-4'>
-              <h3 className='font-bold text-gray-900 text-lg'>📸 Fotos del Lugar</h3>
+              <h3 className='font-bold text-gray-900 text-lg'>📸 Fotos y Videos del Lugar</h3>
               
               {createdPlaceId ? (
                 <div className='bg-green-50 p-4 rounded-lg border border-green-200 flex items-center gap-3'>
@@ -808,12 +809,12 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                   </div>
                   <div>
                     <p className='font-semibold text-green-800'>¡Lugar creado exitosamente!</p>
-                    <p className='text-sm text-green-700'>Ahora sube las fotos seleccionadas</p>
+                    <p className='text-sm text-green-700'>Ahora sube los archivos seleccionados</p>
                   </div>
                 </div>
               ) : (
                 <p className='text-sm text-gray-600'>
-                  Selecciona fotos del lugar para que la comunidad lo conozca. Este paso es opcional, puedes omitirlo.
+                  Selecciona fotos y videos del lugar para que la comunidad lo conozca. Este paso es opcional, puedes omitirlo.
                 </p>
               )}
 
@@ -823,7 +824,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                   <input
                     ref={fileInputRef}
                     type='file'
-                    accept='image/*'
+                    accept='image/*,video/*'
                     multiple
                     onChange={handlePhotoSelect}
                     className='hidden'
@@ -836,26 +837,34 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                 >
                   <Upload size={32} className='mx-auto text-purple-400 mb-2' />
                   <p className='text-sm font-semibold text-gray-700'>
-                    Haz clic para agregar fotos
+                    Haz clic para agregar fotos o videos
                   </p>
                   <p className='text-xs text-gray-500 mt-1'>
-                    {selectedFiles.length === 0 ? 'Selecciona una o más fotos' : `${selectedFiles.length} foto(s) seleccionada(s)`} • JPG, PNG (máx. 10MB c/u)
+                    {selectedFiles.length === 0 ? 'Selecciona fotos y/o videos' : `${selectedFiles.length} archivo(s) seleccionado(s)`} • JPG, PNG, MP4, MOV
                   </p>
                 </button>
                 </div>
               )}
 
-              {/* Photo previews */}
+              {/* Photo/video previews */}
               {photoPreviewUrls.length > 0 && (
                 <div className='grid grid-cols-3 sm:grid-cols-5 gap-3'>
                   {photoPreviewUrls.map((url, index) => (
                     <div key={index} className='relative group aspect-square rounded-lg overflow-hidden bg-gray-100'>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={url}
-                        alt={`Preview ${index + 1}`}
-                        className='w-full h-full object-cover'
-                      />
+                      {selectedFiles[index]?.type.startsWith('video/') ? (
+                        <video
+                          src={url}
+                          className='w-full h-full object-cover'
+                          muted
+                        />
+                      ) : (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={url}
+                          alt={`Preview ${index + 1}`}
+                          className='w-full h-full object-cover'
+                        />
+                      )}
                       {!createdPlaceId && (
                         <button
                           type='button'
@@ -877,7 +886,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                   <div className='flex items-center gap-3 mb-2'>
                     <Loader2 className='animate-spin text-blue-600' size={20} />
                     <span className='text-sm font-semibold text-blue-800'>
-                      Subiendo fotos... ({uploadProgress.done}/{uploadProgress.total})
+                      Subiendo archivos... ({uploadProgress.done}/{uploadProgress.total})
                     </span>
                   </div>
                   <div className='w-full bg-blue-200 rounded-full h-2'>
