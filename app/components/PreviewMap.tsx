@@ -4,6 +4,7 @@ import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+const libraries: ('places')[] = ['places'];
 const MEDELLIN_CENTER: [number, number] = [6.2442, -75.5812];
 
 interface PreviewMapProps {
@@ -106,7 +107,7 @@ function MapInner({ coordinates, interactive, onMapClick }: { coordinates: [numb
 export default function PreviewMap({ coordinates, address, interactive = false, onMapClick }: PreviewMapProps) {
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
-    libraries: ['places'],
+    libraries,
   });
 
   const mapHeight = interactive ? 'h-80' : 'h-48';

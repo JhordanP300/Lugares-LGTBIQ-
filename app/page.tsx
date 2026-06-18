@@ -51,7 +51,7 @@ export default function Home() {
       {isAdmin ? (
         <button
           onClick={() => router.push('/admin')}
-          className='fixed bottom-16 right-3 sm:bottom-20 sm:right-4 z-40 bg-gradient-to-r from-purple-600 to-pink-600 text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center gap-2'
+          className='fixed bottom-56 right-3 sm:right-4 z-40 bg-gradient-to-r from-purple-600 to-pink-600 text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center gap-2'
           title='Panel de administración'
         >
           <Shield size={20} className='sm:w-6 sm:h-6' />
@@ -65,7 +65,7 @@ export default function Home() {
             }
             setIsAddPlaceOpen(true);
           }}
-          className='fixed bottom-16 right-3 sm:bottom-20 sm:right-4 z-40 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center gap-2'
+          className='fixed bottom-56 right-3 sm:right-4 z-40 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center gap-2'
           title={user ? 'Enviar solicitud de lugar' : 'Inicia sesión para enviar solicitudes'}
         >
           <Plus size={20} className='sm:w-6 sm:h-6' />
