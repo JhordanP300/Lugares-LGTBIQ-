@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Comment, fetchAllComments, adminDeleteComment, fetchAllCommentsCount } from '@/app/lib/comments-db';
-import { Photo, fetchAllPhotos, adminDeletePhoto, fetchAllPhotosCount } from '@/app/lib/media-db';
+import { Photo, fetchAllPhotos, adminDeletePhoto, fetchUserPhotosCount } from '@/app/lib/media-db';
 import { useAuth } from '@/app/context/AuthContext';
 import { createNotification } from '@/app/lib/notifications-db';
 import ContentTable from '@/app/components/admin/ContentTable';
@@ -33,7 +33,7 @@ export default function ModerationPage() {
     setLoading(true);
     const [data, count] = await Promise.all([
       fetchAllPhotos(100),
-      fetchAllPhotosCount(),
+      fetchUserPhotosCount(),
     ]);
     setPhotos(data);
     setPhotosCount(count);

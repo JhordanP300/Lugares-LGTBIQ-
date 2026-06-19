@@ -37,6 +37,17 @@ export async function fetchAllUsers(): Promise<UserProfile[]> {
   return data.map(rowToUser);
 }
 
+export async function fetchAdminUsers(): Promise<UserProfile[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('role', 'admin');
+
+  if (error || !data) return [];
+  return data.map(rowToUser);
+}
+
 export async function fetchUserById(userId: string): Promise<UserProfile | null> {
   const supabase = createClient();
   const { data, error } = await supabase

@@ -308,6 +308,7 @@ export async function fetchAllPhotos(
   const { data, error } = await supabase
     .from('photos')
     .select('*')
+    .eq('type', 'user')
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -320,6 +321,17 @@ export async function fetchAllPhotosCount(): Promise<number> {
   const { count, error } = await supabase
     .from('photos')
     .select('*', { count: 'exact', head: true });
+
+  if (error || count === null) return 0;
+  return count;
+}
+
+export async function fetchUserPhotosCount(): Promise<number> {
+  const supabase = createClient();
+  const { count, error } = await supabase
+    .from('photos')
+    .select('*', { count: 'exact', head: true })
+    .eq('type', 'user');
 
   if (error || count === null) return 0;
   return count;

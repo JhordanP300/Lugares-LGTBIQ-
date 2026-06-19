@@ -26,6 +26,15 @@ export default function Home() {
   const isAdmin = profile?.role === 'admin';
   const router = useRouter();
   const [pendingRequests, setPendingRequests] = useState(0);
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    const hasVisited = sessionStorage.getItem('welcomed');
+    if (!hasVisited) {
+      setShowWelcome(true);
+      sessionStorage.setItem('welcomed', 'true');
+    }
+  }, []);
 
   // Cargar solicitudes pendientes para admin
   useEffect(() => {
@@ -88,7 +97,7 @@ export default function Home() {
       >
         {/* Header del Sidebar */}
         <div className='bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 p-6 text-white flex-shrink-0'>
-          <h1 className='text-2xl font-bold mb-2'>🌈 Lugares Seguros</h1>
+          <h1 className='text-2xl font-bold mb-2'>🌈 Oikos</h1>
           <p className='text-sm opacity-90'>Espacios LGBTIQ+ en Medellín</p>
         </div>
 
@@ -198,7 +207,7 @@ export default function Home() {
           <div className='bg-blue-50 rounded-lg p-4 border-l-4 border-blue-600'>
             <h3 className='font-bold text-gray-900 mb-2'>📊 Comunidad</h3>
             <p className='text-sm text-gray-700'>
-              <strong>{places.length}</strong> lugares seguros registrados
+              <strong>{places.length}</strong> lugares registrados
             </p>
           </div>
 
@@ -212,7 +221,7 @@ export default function Home() {
               </li>
               <li className='flex gap-2'>
                 <span className='font-bold text-purple-600 flex-shrink-0'>2.</span>
-                <span>Haz clic en un marcador para ver detalles</span>
+                <span>Haz clic en un ícono para ver detalles</span>
               </li>
               <li className='flex gap-2'>
                 <span className='font-bold text-purple-600 flex-shrink-0'>3.</span>
@@ -220,7 +229,7 @@ export default function Home() {
               </li>
               <li className='flex gap-2'>
                 <span className='font-bold text-purple-600 flex-shrink-0'>4.</span>
-                <span>¡Agrega nuevos lugares que conoces!</span>
+                <span>Agrega nuevos lugares que conoces</span>
               </li>
             </ol>
           </div>
@@ -336,6 +345,38 @@ export default function Home() {
           <strong>💡 Tip:</strong> {isAdmin ? 'Usa el botón 🛡️ para ir al panel de admin' : 'Usa el botón + para enviar una solicitud de lugar'}
         </p>
       </div>
+
+      {/* Modal de Bienvenida */}
+      {showWelcome && (
+        <div className='fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4' onClick={() => setShowWelcome(false)}>
+          <div
+            className='bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-300'
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className='bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 p-6 text-center'>
+              <span className='text-5xl block mb-3'>🌈</span>
+              <h2 className='text-2xl font-bold text-white'>¡Bienvenide a Oikos!</h2>
+            </div>
+            <div className='p-6 space-y-4'>
+              <p className='text-gray-700 text-center'>
+                Un espacio para encontrar y compartir <strong>lugares seguros</strong> para la comunidad LGBTIQ+ en el Valle de Aburrá.
+              </p>
+              <div className='bg-purple-50 rounded-lg p-4 space-y-2'>
+                <p className='text-sm text-gray-700'>🗺️ <strong>Explora</strong> el mapa para descubrir lugares cercanos</p>
+                <p className='text-sm text-gray-700'>⭐ <strong>Comenta</strong> y comparte tu experiencia</p>
+                <p className='text-sm text-gray-700'>📸 <strong>Sube fotos</strong> de los lugares que visites</p>
+                <p className='text-sm text-gray-700'>📍 <strong>Agrega nuevos lugares</strong> que conozcas</p>
+              </div>
+              <button
+                onClick={() => setShowWelcome(false)}
+                className='w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow'
+              >
+                ¡Empezar a explorar!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Formulario para agregar lugar */}
       <AddPlaceForm

@@ -5,6 +5,8 @@ import { Star, Send, Trash2, User, Upload, X, Video, Image as ImageIcon } from '
 import { useAuth } from '@/app/context/AuthContext';
 import { fetchComments, insertComment, deleteComment, Comment } from '@/app/lib/comments-db';
 import { fetchUserPhotos, insertPhoto, uploadMedia, deletePhoto, Photo } from '@/app/lib/media-db';
+import { createNotification } from '@/app/lib/notifications-db';
+import { fetchAdminUsers } from '@/app/lib/users-db';
 
 interface CommentsProps {
   placeId: string;
@@ -73,6 +75,18 @@ export default function Comments({ placeId }: CommentsProps) {
       setComments(prev => [created, ...prev]);
       setNewComment('');
       setNewRating(5);
+
+      const admins = await fetchAdminUsers();
+      for (const admin of admins) {
+        if (admin.id !== user?.id) {
+          createNotification(
+            admin.id,
+            'Nuevo comentario',
+            `${authorName} dejó un comentario en un lugar.`,
+            'system'
+          );
+        }
+      }
     } else {
       alert('Error al guardar el comentario. Intenta de nuevo.');
     }
@@ -119,6 +133,18 @@ export default function Comments({ placeId }: CommentsProps) {
 
       if (created) {
         setPhotos(prev => [created, ...prev]);
+
+        const admins = await fetchAdminUsers();
+        for (const admin of admins) {
+          if (admin.id !== user.id) {
+            createNotification(
+              admin.id,
+              'Nueva foto',
+              `${getAuthorName()} subió una foto a un lugar.`,
+              'system'
+            );
+          }
+        }
       }
     } catch (err) {
       console.error('Error subiendo archivo:', err);
