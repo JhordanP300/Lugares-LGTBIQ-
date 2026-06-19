@@ -45,7 +45,7 @@ function isVideo(file: File): boolean {
   return file.type.startsWith('video/');
 }
 
-// Upload a Supabase Storage (legacy)
+// Upload a Supabase Storage (para imágenes)
 export async function uploadFile(
   file: File,
   placeId: string,
@@ -73,8 +73,22 @@ export async function uploadFile(
 
   return {
     url: urlData.publicUrl,
-    thumbnailUrl: isVideo(file) ? null : urlData.publicUrl,
+    thumbnailUrl: urlData.publicUrl,
   };
+}
+
+// Upload unificado: videos a Cloudinary, imágenes a Supabase Storage
+export async function uploadMedia(
+  file: File,
+  placeId: string,
+  userId: string,
+  onProgress?: (progress: { loaded: number; total: number; percentage: number }) => void
+): Promise<{ url: string; thumbnailUrl: string | null }> {
+  if (isVideo(file)) {
+    const result = await uploadFileToCloudinary(file, placeId, userId, onProgress);
+    return { url: result.url, thumbnailUrl: result.thumbnailUrl || null };
+  }
+  return uploadFile(file, placeId, userId);
 }
 
 // Upload a Cloudinary (para videos grandes sin límite)

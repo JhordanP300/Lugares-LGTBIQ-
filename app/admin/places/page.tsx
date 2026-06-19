@@ -7,7 +7,7 @@ import { fetchAllPlaces, adminUpdatePlace, deletePlace } from '@/app/lib/places-
 import { cargarBarrios, Barrio } from '@/app/lib/barrios';
 import { useAuth } from '@/app/context/AuthContext';
 import { createNotification } from '@/app/lib/notifications-db';
-import { fetchAdminPhotos, uploadFileToCloudinary, insertPhoto, adminDeletePhoto, Photo } from '@/app/lib/media-db';
+import { fetchAdminPhotos, uploadMedia, insertPhoto, adminDeletePhoto, Photo } from '@/app/lib/media-db';
 import { geocodificarDireccion, parsearCoordenadasGoogleMaps, obtenerDireccionInversa, obtenerSugerencias, formatearDireccionColombiana, Suggestion } from '@/app/lib/geocoding';
 import { MapPin, Edit2, Trash2, Loader2, X, ShieldCheck, Shield, Save, Plus, Upload } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -333,7 +333,7 @@ export default function AdminPlacesPage() {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       try {
-        const uploadResult = await uploadFileToCloudinary(
+        const uploadResult = await uploadMedia(
           file,
           editingPlace.id,
           profile.id,
@@ -790,7 +790,8 @@ export default function AdminPlacesPage() {
                     <>
                       <Upload size={24} className='mx-auto text-purple-400 mb-1' />
                       <p className='text-sm font-medium text-gray-700'>Agregar fotos o videos</p>
-                      <p className='text-xs text-gray-500'>JPG, PNG, MP4, MOV, AVI, WebM • Sin límite de tamaño</p>
+                      <p className='text-xs text-gray-500'>JPG, PNG, MP4, MOV, AVI, WebM</p>
+                      <p className='text-xs text-orange-500 font-medium'>Videos: máximo 100MB</p>
                     </>
                   )}
                 </button>

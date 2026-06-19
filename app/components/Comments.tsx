@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Star, Send, Trash2, User, Upload, X, Video, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 import { fetchComments, insertComment, deleteComment, Comment } from '@/app/lib/comments-db';
-import { fetchUserPhotos, insertPhoto, uploadFileToCloudinary, deletePhoto, Photo } from '@/app/lib/media-db';
+import { fetchUserPhotos, insertPhoto, uploadMedia, deletePhoto, Photo } from '@/app/lib/media-db';
 
 interface CommentsProps {
   placeId: string;
@@ -101,8 +101,8 @@ export default function Comments({ placeId }: CommentsProps) {
     setUploading(true);
 
     try {
-      // Subir a Cloudinary (soporta archivos de cualquier tamaño)
-      const uploadResult = await uploadFileToCloudinary(
+      // uploadMedia: videos a Cloudinary, imágenes a Supabase Storage
+      const uploadResult = await uploadMedia(
         file,
         placeId,
         user.id
@@ -224,7 +224,7 @@ export default function Comments({ placeId }: CommentsProps) {
               </span>
             </label>
             <p className='text-xs text-gray-500 mt-2 text-center'>
-              Imágenes y videos: sin límite de tamaño
+              Imágenes y videos • Videos: máximo 100MB
             </p>
           </div>
         )}

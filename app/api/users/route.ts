@@ -79,24 +79,8 @@ export async function POST(request: NextRequest) {
   }
 
   if (action === 'deleteUser') {
-    await adminClient.from('comments').delete().eq('user_id', userId);
-    const { data: photos } = await adminClient
-      .from('photos')
-      .select('id, url')
-      .eq('user_id', userId);
-    if (photos && photos.length > 0) {
-      for (const photo of photos) {
-        const urlParts = photo.url.split('/');
-        const bucketIndex = urlParts.indexOf('place-media');
-        if (bucketIndex !== -1) {
-          const filePath = urlParts.slice(bucketIndex + 1).join('/');
-          await adminClient.storage.from('place-media').remove([filePath]);
-        }
-      }
-      await adminClient.from('photos').delete().eq('user_id', userId);
-    }
-    await adminClient.from('place_requests').delete().eq('user_id', userId);
     await adminClient.from('notifications').delete().eq('user_id', userId);
+    await adminClient.from('place_requests').delete().eq('user_id', userId);
     await adminClient.from('users').delete().eq('id', userId);
 
     const { error: authError } = await adminClient.auth.admin.deleteUser(userId);

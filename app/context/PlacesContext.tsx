@@ -57,8 +57,10 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
         const local = loadPlacesFromStorage();
         if (local.length > 0) {
           setPlaces(local);
+        } else {
+          // No places anywhere
+          setPlaces([]);
         }
-        // If nothing in localStorage either, keep hardcoded initialPlaces
       }
       setLoaded(true);
       setLoading(false);

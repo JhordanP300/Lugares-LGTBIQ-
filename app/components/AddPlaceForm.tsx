@@ -6,7 +6,7 @@ import { X, Plus, ShieldCheck, Shield, MapPin, Loader2, Upload, Image as ImageIc
 import { Place } from '@/app/lib/places';
 import { cargarBarrios, Barrio } from '@/app/lib/barrios';
 import { geocodificarDireccion, parsearCoordenadasGoogleMaps, obtenerDireccionInversa, obtenerSugerencias, formatearDireccionColombiana, Suggestion } from '@/app/lib/geocoding';
-import { uploadFileToCloudinary, insertPhoto, CloudinaryUploadResult } from '@/app/lib/media-db';
+import { uploadMedia, insertPhoto } from '@/app/lib/media-db';
 import { useAuth } from '@/app/context/AuthContext';
 import dynamic from 'next/dynamic';
 
@@ -349,8 +349,8 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i];
       try {
-        // Subir a Cloudinary (soporta videos de cualquier tamaño)
-        const uploadResult = await uploadFileToCloudinary(
+        // uploadMedia: videos a Cloudinary, imágenes a Supabase Storage
+        const uploadResult = await uploadMedia(
           file,
           placeId,
           userId || 'anonymous',
@@ -870,8 +870,8 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                   <p className='text-xs text-gray-500 mt-1'>
                     {selectedFiles.length === 0 ? 'Selecciona fotos y/o videos' : `${selectedFiles.length} archivo(s) seleccionado(s)`} • JPG, PNG, MP4, MOV, AVI, WebM
                   </p>
-                  <p className='text-xs text-purple-600 mt-1 font-medium'>
-                    Videos: sin límite de tamaño
+                  <p className='text-xs text-orange-500 mt-1 font-medium'>
+                    Videos: máximo 100MB
                   </p>
                 </button>
                 </div>
