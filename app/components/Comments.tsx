@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Star, Send, Trash2, User, Upload, X, Video, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 import { fetchComments, insertComment, deleteComment, Comment } from '@/app/lib/comments-db';
-import { fetchUserPhotos, insertPhoto, uploadFile, deletePhoto, Photo } from '@/app/lib/media-db';
+import { fetchUserPhotos, insertPhoto, uploadFileToCloudinary, deletePhoto, Photo } from '@/app/lib/media-db';
 
 interface CommentsProps {
   placeId: string;
@@ -19,6 +19,13 @@ export default function Comments({ placeId }: CommentsProps) {
   const [uploading, setUploading] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [loadingData, setLoadingData] = useState(true);
+
+  // Función para detectar URLs de video
+  const isVideoUrl = (url: string): boolean => {
+    if (url.includes('cloudinary.com') && url.includes('/video/upload/')) return true;
+    if (url.includes('cloudinary.com') && url.includes('/upload/') && url.includes('/video/')) return true;
+    return /\.(mp4|mov|avi|webm|mkv|3gp)(\?|$)/i.test(url) || url.includes('/videos/');
+  };
 
   const getAuthorName = (): string => {
     if (profile?.name) return profile.name;
@@ -79,19 +86,32 @@ export default function Comments({ placeId }: CommentsProps) {
     }
   }, [user]);
 
+  const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
+
   const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user?.id) return;
 
+    if (file.type.startsWith('video/') && file.size > MAX_VIDEO_SIZE) {
+      alert('El video supera los 100MB. Por favor, comprímelo antes de subirlo.');
+      e.target.value = '';
+      return;
+    }
+
     setUploading(true);
 
     try {
-      const uploadResult = await uploadFile(file, placeId, user.id);
+      // Subir a Cloudinary (soporta archivos de cualquier tamaño)
+      const uploadResult = await uploadFileToCloudinary(
+        file,
+        placeId,
+        user.id
+      );
 
       const created = await insertPhoto(
         placeId,
         uploadResult.url,
-        uploadResult.thumbnailUrl,
+        uploadResult.thumbnailUrl || null,
         getAuthorName(),
         user.id,
         'user'
@@ -204,7 +224,7 @@ export default function Comments({ placeId }: CommentsProps) {
               </span>
             </label>
             <p className='text-xs text-gray-500 mt-2 text-center'>
-              Imágenes: máximo 10MB | Videos: máximo 50MB
+              Imágenes y videos: sin límite de tamaño
             </p>
           </div>
         )}
@@ -223,12 +243,20 @@ export default function Comments({ placeId }: CommentsProps) {
                 className='relative group cursor-pointer overflow-hidden rounded-lg aspect-square'
                 onClick={() => setSelectedPhoto(item)}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={item.url}
-                  alt={`Por ${item.author}`}
-                  className='w-full h-full object-cover group-hover:scale-105 transition-transform'
-                />
+                {isVideoUrl(item.url) ? (
+                  <video
+                    src={item.url}
+                    className='w-full h-full object-cover group-hover:scale-105 transition-transform'
+                    muted
+                  />
+                ) : (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={item.url}
+                    alt={`Por ${item.author}`}
+                    className='w-full h-full object-cover group-hover:scale-105 transition-transform'
+                  />
+                )}
 
                 <div className='absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center'>
                   {user && user.id === item.userId && (

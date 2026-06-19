@@ -15,6 +15,11 @@ interface PlaceModalProps {
 }
 
 function isVideoUrl(url: string): boolean {
+  // Detectar URLs de Cloudinary (video/upload)
+  if (url.includes('cloudinary.com') && url.includes('/video/upload/')) return true;
+  // Detectar URLs de Cloudinary con transformaciones
+  if (url.includes('cloudinary.com') && url.includes('/upload/') && url.includes('/video/')) return true;
+  // Detectar URLs de videos por extensión
   return /\.(mp4|mov|avi|webm|mkv|3gp)(\?|$)/i.test(url) || url.includes('/videos/');
 }
 

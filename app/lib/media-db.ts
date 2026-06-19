@@ -45,6 +45,7 @@ function isVideo(file: File): boolean {
   return file.type.startsWith('video/');
 }
 
+// Upload a Supabase Storage (legacy)
 export async function uploadFile(
   file: File,
   placeId: string,
@@ -73,6 +74,95 @@ export async function uploadFile(
   return {
     url: urlData.publicUrl,
     thumbnailUrl: isVideo(file) ? null : urlData.publicUrl,
+  };
+}
+
+// Upload a Cloudinary (para videos grandes sin límite)
+export interface CloudinaryUploadResult {
+  url: string;
+  publicId: string;
+  format: string;
+  resourceType: string;
+  bytes: number;
+  duration?: number;
+  thumbnailUrl?: string;
+}
+
+export async function uploadFileToCloudinary(
+  file: File,
+  placeId: string,
+  userId: string,
+  onProgress?: (progress: { loaded: number; total: number; percentage: number }) => void
+): Promise<CloudinaryUploadResult> {
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+
+  if (!cloudName) {
+    throw new Error('Cloudinary no está configurado. Falta CLOUD_NAME.');
+  }
+
+  if (onProgress) {
+    onProgress({ loaded: 0, total: file.size, percentage: 0 });
+  }
+
+  const folder = placeId ? `lugares/${placeId}` : 'lugares';
+  const timestamp = Math.floor(Date.now() / 1000);
+
+  const signRes = await fetch('/api/upload', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ folder, timestamp }),
+  });
+
+  if (!signRes.ok) {
+    const err = await signRes.json().catch(() => null);
+    throw new Error(`Error obteniendo firma: ${err?.error || signRes.status}`);
+  }
+
+  const { signature, api_key } = await signRes.json();
+
+  const resourceType = file.type.startsWith('video/') ? 'video' : 'image';
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('api_key', api_key);
+  formData.append('timestamp', String(timestamp));
+  formData.append('folder', folder);
+  formData.append('signature', signature);
+
+  const response = await fetch(
+    `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
+    { method: 'POST', body: formData }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    const message = errorData?.error?.message || `Error ${response.status}`;
+    throw new Error(`Error de Cloudinary: ${message}`);
+  }
+
+  const data = await response.json();
+
+  let thumbnailUrl = null;
+  if (resourceType === 'video') {
+    thumbnailUrl = data.secure_url
+      .replace('/upload/', '/upload/w_300,h_200,c_fill,f_jpg/')
+      .replace(/\.[^.]+$/, '.jpg');
+  } else {
+    thumbnailUrl = data.secure_url;
+  }
+
+  if (onProgress) {
+    onProgress({ loaded: file.size, total: file.size, percentage: 100 });
+  }
+
+  return {
+    url: data.secure_url,
+    publicId: data.public_id,
+    format: data.format,
+    resourceType: data.resource_type,
+    bytes: data.bytes,
+    duration: data.duration,
+    thumbnailUrl,
   };
 }
 

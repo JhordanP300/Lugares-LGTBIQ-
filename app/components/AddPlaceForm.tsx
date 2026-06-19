@@ -6,7 +6,7 @@ import { X, Plus, ShieldCheck, Shield, MapPin, Loader2, Upload, Image as ImageIc
 import { Place } from '@/app/lib/places';
 import { cargarBarrios, Barrio } from '@/app/lib/barrios';
 import { geocodificarDireccion, parsearCoordenadasGoogleMaps, obtenerDireccionInversa, obtenerSugerencias, formatearDireccionColombiana, Suggestion } from '@/app/lib/geocoding';
-import { uploadFile, insertPhoto } from '@/app/lib/media-db';
+import { uploadFileToCloudinary, insertPhoto, CloudinaryUploadResult } from '@/app/lib/media-db';
 import { useAuth } from '@/app/context/AuthContext';
 import dynamic from 'next/dynamic';
 
@@ -27,6 +27,15 @@ interface AddPlaceFormProps {
 
 export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFormProps) {
   const { user, profile } = useAuth();
+  
+  // Función auxiliar para formatear bytes
+  const formatBytes = (bytes: number): string => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -61,6 +70,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
   const [photoPreviewUrls, setPhotoPreviewUrls] = useState<string[]>([]);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number }>({ done: 0, total: 0 });
+  const [currentFileProgress, setCurrentFileProgress] = useState<{ loaded: number; total: number; percentage: number } | null>(null);
   const [creatingPlace, setCreatingPlace] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -264,10 +274,19 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
     }));
   };
 
+  const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
+
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const mediaFiles = files.filter(f => f.type.startsWith('image/') || f.type.startsWith('video/'));
     
+    const oversized = mediaFiles.find(f => f.type.startsWith('video/') && f.size > MAX_VIDEO_SIZE);
+    if (oversized) {
+      alert(`El video "${oversized.name}" supera los 100MB. Por favor, comprímelo antes de subirlo.`);
+      e.target.value = '';
+      return;
+    }
+
     const newPreviewUrls = mediaFiles.map(f => URL.createObjectURL(f));
     setSelectedFiles(prev => [...prev, ...mediaFiles]);
     setPhotoPreviewUrls(prev => [...prev, ...newPreviewUrls]);
@@ -322,6 +341,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
 
     setUploadingPhotos(true);
     setUploadProgress({ done: 0, total: selectedFiles.length });
+    setCurrentFileProgress(null);
 
     const authorName = profile?.name || user?.email?.split('@')[0] || 'Anónimo';
     const userId = user?.id || '';
@@ -329,11 +349,18 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i];
       try {
-        const uploadResult = await uploadFile(file, placeId, userId);
+        // Subir a Cloudinary (soporta videos de cualquier tamaño)
+        const uploadResult = await uploadFileToCloudinary(
+          file,
+          placeId,
+          userId || 'anonymous',
+          (progress) => setCurrentFileProgress(progress)
+        );
+
         await insertPhoto(
           placeId,
           uploadResult.url,
-          uploadResult.thumbnailUrl,
+          uploadResult.thumbnailUrl || null,
           authorName,
           userId || null,
           'admin'
@@ -343,6 +370,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
       }
       
       setUploadProgress({ done: i + 1, total: selectedFiles.length });
+      setCurrentFileProgress(null);
     }
 
     setUploadingPhotos(false);
@@ -840,7 +868,10 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                     Haz clic para agregar fotos o videos
                   </p>
                   <p className='text-xs text-gray-500 mt-1'>
-                    {selectedFiles.length === 0 ? 'Selecciona fotos y/o videos' : `${selectedFiles.length} archivo(s) seleccionado(s)`} • JPG, PNG, MP4, MOV
+                    {selectedFiles.length === 0 ? 'Selecciona fotos y/o videos' : `${selectedFiles.length} archivo(s) seleccionado(s)`} • JPG, PNG, MP4, MOV, AVI, WebM
+                  </p>
+                  <p className='text-xs text-purple-600 mt-1 font-medium'>
+                    Videos: sin límite de tamaño
                   </p>
                 </button>
                 </div>
@@ -889,12 +920,33 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                       Subiendo archivos... ({uploadProgress.done}/{uploadProgress.total})
                     </span>
                   </div>
-                  <div className='w-full bg-blue-200 rounded-full h-2'>
-                    <div
-                      className='bg-blue-600 h-2 rounded-full transition-all duration-300'
-                      style={{ width: `${(uploadProgress.done / uploadProgress.total) * 100}%` }}
-                    />
-                  </div>
+                  
+                  {/* Progreso del archivo actual */}
+                  {currentFileProgress && (
+                    <div className='space-y-2'>
+                      <div className='w-full bg-blue-200 rounded-full h-2'>
+                        <div
+                          className='bg-blue-600 h-2 rounded-full transition-all duration-300'
+                          style={{ width: `${currentFileProgress.percentage}%` }}
+                        />
+                      </div>
+                      <div className='flex justify-between text-xs text-blue-700'>
+                        <span>{currentFileProgress.percentage}%</span>
+                        <span>
+                          {formatBytes(currentFileProgress.loaded)} / {formatBytes(currentFileProgress.total)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {!currentFileProgress && (
+                    <div className='w-full bg-blue-200 rounded-full h-2'>
+                      <div
+                        className='bg-blue-600 h-2 rounded-full transition-all duration-300'
+                        style={{ width: `${(uploadProgress.done / uploadProgress.total) * 100}%` }}
+                      />
+                    </div>
+                  )}
                 </div>
               )}
             </div>

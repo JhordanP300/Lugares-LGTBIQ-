@@ -1,13 +1,25 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { Place, categoryLabels } from '@/app/lib/places';
 import { fetchAllPlaces, adminUpdatePlace, deletePlace } from '@/app/lib/places-db';
 import { cargarBarrios, Barrio } from '@/app/lib/barrios';
 import { useAuth } from '@/app/context/AuthContext';
 import { createNotification } from '@/app/lib/notifications-db';
-import { fetchAdminPhotos, uploadFile, insertPhoto, adminDeletePhoto, Photo } from '@/app/lib/media-db';
+import { fetchAdminPhotos, uploadFileToCloudinary, insertPhoto, adminDeletePhoto, Photo } from '@/app/lib/media-db';
+import { geocodificarDireccion, parsearCoordenadasGoogleMaps, obtenerDireccionInversa, obtenerSugerencias, formatearDireccionColombiana, Suggestion } from '@/app/lib/geocoding';
 import { MapPin, Edit2, Trash2, Loader2, X, ShieldCheck, Shield, Save, Plus, Upload } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const PreviewMap = dynamic(() => import('@/app/components/PreviewMap'), {
+  ssr: false,
+  loading: () => (
+    <div className='w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center'>
+      <Loader2 className='animate-spin text-gray-400' size={24} />
+    </div>
+  ),
+});
 
 type PlaceWithMeta = Place & { createdBy: string | null; createdAt: string };
 
@@ -52,7 +64,26 @@ export default function AdminPlacesPage() {
   const [loadingPhotos, setLoadingPhotos] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<{ loaded: number; total: number; percentage: number } | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
+
+  // Address / Map state
+  const [sugerencias, setSugerencias] = useState<Suggestion[]>([]);
+  const [buscandoDireccion, setBuscandoDireccion] = useState(false);
+  const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
+  const [direccionEncontrada, setDireccionEncontrada] = useState(true);
+  const [mapaInteractivo, setMapaInteractivo] = useState(false);
+  const [cargandoDireccionMapa, setCargandoDireccionMapa] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  const formatBytes = (bytes: number): string => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
 
   const loadPlaces = async () => {
     setLoading(true);
@@ -72,8 +103,11 @@ export default function AdminPlacesPage() {
     setSocialLinks(place.socialLinks || []);
     setSaveError(null);
     setUploadError(null);
+    setDireccionEncontrada(true);
+    setMapaInteractivo(false);
+    setSugerencias([]);
+    setMostrarSugerencias(false);
 
-    // Load photos for this place
     setLoadingPhotos(true);
     const photos = await fetchAdminPhotos(place.id);
     setPlacePhotos(photos);
@@ -142,23 +176,174 @@ export default function AdminPlacesPage() {
     setSocialLinks((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // --- Address / Map handlers (same as AddPlaceForm) ---
+
+  const buscarSugerencias = useCallback(async (busqueda: string) => {
+    if (busqueda.length < 3) {
+      setSugerencias([]);
+      setMostrarSugerencias(false);
+      return;
+    }
+
+    setBuscandoDireccion(true);
+    const sugerenciasData = await obtenerSugerencias(busqueda);
+    setSugerencias(sugerenciasData);
+    setMostrarSugerencias(sugerenciasData.length > 0);
+
+    if (sugerenciasData.length > 0) {
+      const mejor = sugerenciasData[0];
+      const direccionFormateada = mejor.address
+        ? formatearDireccionColombiana(mejor.address, mejor.displayName)
+        : mejor.displayName.split(',').slice(0, 3).join(',').trim();
+      setEditData(prev => ({
+        ...prev,
+        coordinates: [mejor.lat, mejor.lng],
+        address: direccionFormateada,
+      }));
+      setDireccionEncontrada(true);
+    } else {
+      const resultados = await geocodificarDireccion(busqueda);
+      if (resultados) {
+        const direccionFormateada = formatearDireccionColombiana(resultados.address, resultados.displayName);
+        setEditData(prev => ({
+          ...prev,
+          coordinates: [resultados.lat, resultados.lng],
+          address: direccionFormateada,
+        }));
+        setDireccionEncontrada(true);
+      }
+    }
+    setBuscandoDireccion(false);
+  }, []);
+
+  const handleDireccionChange = async (value: string) => {
+    setEditData(prev => ({ ...prev, address: value }));
+    setDireccionEncontrada(false);
+
+    const coordenadas = parsearCoordenadasGoogleMaps(value);
+    if (coordenadas) {
+      setBuscandoDireccion(true);
+      const direccionLegible = await obtenerDireccionInversa(coordenadas.lat, coordenadas.lng);
+      setEditData(prev => ({
+        ...prev,
+        coordinates: [coordenadas.lat, coordenadas.lng],
+        address: direccionLegible || `${coordenadas.lat}, ${coordenadas.lng}`,
+      }));
+      setDireccionEncontrada(true);
+      setBuscandoDireccion(false);
+      setSugerencias([]);
+      setMostrarSugerencias(false);
+      return;
+    }
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    
+    debounceRef.current = setTimeout(() => {
+      buscarSugerencias(value);
+    }, 500);
+  };
+
+  const seleccionarSugerencia = (sugerencia: Suggestion) => {
+    const direccionFormateada = sugerencia.address
+      ? formatearDireccionColombiana(sugerencia.address, sugerencia.displayName)
+      : sugerencia.displayName.split(',').slice(0, 3).join(',').trim();
+    setEditData(prev => ({
+      ...prev,
+      address: direccionFormateada,
+      coordinates: [sugerencia.lat, sugerencia.lng],
+    }));
+    setSugerencias([]);
+    setMostrarSugerencias(false);
+    setDireccionEncontrada(true);
+  };
+
+  const handleDireccionKeyDown = async (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+      await buscarSugerencias(editData.address || '');
+    }
+  };
+
+  const handleMapClick = useCallback(async (lat: number, lng: number) => {
+    setEditData(prev => ({
+      ...prev,
+      coordinates: [lat, lng],
+    }));
+    setDireccionEncontrada(true);
+    setCargandoDireccionMapa(true);
+    try {
+      const direccion = await obtenerDireccionInversa(lat, lng);
+      if (direccion) {
+        const direccionFormateada = formatearDireccionColombiana(
+          (() => {
+            try {
+              const partes = direccion.split(', ');
+              return {
+                road: partes[0] || undefined,
+                neighbourhood: partes.find(p => !p.match(/^\d/) && p !== direccion.split(', ').slice(-2, -1)[0]) || undefined,
+                city: partes.find(p => p.includes('Medellín') || p.includes('Bello') || p.includes('Envigado')) || partes.slice(-3, -2)[0] || undefined,
+              };
+            } catch {
+              return {};
+            }
+          })(),
+          direccion
+        );
+        setEditData(prev => ({
+          ...prev,
+          address: direccionFormateada,
+        }));
+        setDireccionEncontrada(true);
+      }
+    } catch {
+      setEditData(prev => ({
+        ...prev,
+        address: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+      }));
+    }
+    setCargandoDireccionMapa(false);
+  }, []);
+
+  // --- Photo handlers ---
+
+  const MAX_VIDEO_SIZE = 100 * 1024 * 1024;
+
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0 || !editingPlace || !profile) return;
 
+    const oversized = Array.from(files).find(f => f.type.startsWith('video/') && f.size > MAX_VIDEO_SIZE);
+    if (oversized) {
+      setUploadError(`El video "${oversized.name}" supera los 100MB. Por favor, comprímelo antes de subirlo.`);
+      if (photoInputRef.current) photoInputRef.current.value = '';
+      return;
+    }
+
     setUploadingPhoto(true);
     setUploadError(null);
+    setUploadProgress(null);
     let successCount = 0;
     let errorCount = 0;
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       try {
-        const uploadResult = await uploadFile(file, editingPlace.id, profile.id);
+        const uploadResult = await uploadFileToCloudinary(
+          file,
+          editingPlace.id,
+          profile.id,
+          (progress) => setUploadProgress(progress)
+        );
+        
         await insertPhoto(
           editingPlace.id,
           uploadResult.url,
-          uploadResult.thumbnailUrl,
+          uploadResult.thumbnailUrl || null,
           profile.name || 'Admin',
           profile.id,
           'admin'
@@ -168,15 +353,15 @@ export default function AdminPlacesPage() {
         console.error('Error subiendo archivo:', err);
         errorCount++;
       }
+      setUploadProgress(null);
     }
 
     if (errorCount > 0 && successCount === 0) {
-      setUploadError(`Error al subir ${errorCount} archivo(s). Verifica que el archivo no sea demasiado grande.`);
+      setUploadError(`Error al subir ${errorCount} archivo(s).`);
     } else if (errorCount > 0) {
       setUploadError(`${successCount} subido(s), ${errorCount} fallaron.`);
     }
 
-    // Refresh photos
     const photos = await fetchAdminPhotos(editingPlace.id);
     setPlacePhotos(photos);
     setUploadingPhoto(false);
@@ -247,17 +432,9 @@ export default function AdminPlacesPage() {
                 <div className='mt-3 flex items-center gap-1'>
                   {Array.from({ length: 5 }).map((_, i) =>
                     i < place.safetyRating ? (
-                      <ShieldCheck
-                        key={i}
-                        size={14}
-                        className='text-yellow-500'
-                      />
+                      <ShieldCheck key={i} size={14} className='text-yellow-500' />
                     ) : (
-                      <Shield
-                        key={i}
-                        size={14}
-                        className='text-gray-300'
-                      />
+                      <Shield key={i} size={14} className='text-gray-300' />
                     )
                   )}
                   <span className='text-xs text-gray-500 ml-1'>{place.safetyRating}/5</span>
@@ -346,15 +523,110 @@ export default function AdminPlacesPage() {
                 </div>
               </div>
 
-              {/* Dirección */}
+              {/* Dirección con autocompletado y sugerencias */}
+              <div className='relative'>
+                <label className='block text-sm font-semibold text-gray-700 mb-1'>
+                  Dirección *
+                </label>
+                <div className='relative'>
+                  <MapPin size={16} className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400' />
+                  <input
+                    ref={inputRef}
+                    type='text'
+                    value={editData.address || ''}
+                    onChange={(e) => handleDireccionChange(e.target.value)}
+                    onKeyDown={handleDireccionKeyDown}
+                    onFocus={() => sugerencias.length > 0 && setMostrarSugerencias(true)}
+                    onBlur={() => setTimeout(() => setMostrarSugerencias(false), 200)}
+                    placeholder='Pega una URL de Google Maps o escribe la dirección'
+                    className='w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                  />
+                  {buscandoDireccion && (
+                    <Loader2 size={16} className='absolute right-3 top-1/2 -translate-y-1/2 text-purple-600 animate-spin' />
+                  )}
+                  {direccionEncontrada && !buscandoDireccion && (
+                    <MapPin size={16} className='absolute right-3 top-1/2 -translate-y-1/2 text-green-500' />
+                  )}
+                </div>
+                
+                {mostrarSugerencias && sugerencias.length > 0 && inputRef.current && (
+                  createPortal(
+                    <div
+                      style={{
+                        position: 'fixed',
+                        zIndex: 9999,
+                        left: inputRef.current.getBoundingClientRect().left,
+                        top: inputRef.current.getBoundingClientRect().bottom + window.scrollY,
+                        width: inputRef.current.offsetWidth,
+                      }}
+                      className='bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-y-auto'
+                    >
+                      {sugerencias.map((sugerencia) => (
+                        <button
+                          key={sugerencia.placeId}
+                          type='button'
+                          onClick={() => seleccionarSugerencia(sugerencia)}
+                          className='w-full text-left px-4 py-3 hover:bg-purple-50 border-b border-gray-100 last:border-0 transition-colors'
+                        >
+                          <div className='flex items-start gap-2'>
+                            <MapPin size={14} className='text-purple-600 mt-0.5 flex-shrink-0' />
+                            <span className='text-sm text-gray-700 line-clamp-2'>
+                              {sugerencia.displayName}
+                            </span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>,
+                    document.body
+                  )
+                )}
+              </div>
+
+              {/* Mapa interactivo */}
               <div>
-                <label className='block text-sm font-semibold text-gray-700 mb-1'>Dirección *</label>
-                <input
-                  type='text'
-                  value={editData.address || ''}
-                  onChange={(e) => setEditData({ ...editData, address: e.target.value })}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                <div className='flex items-center justify-between mb-1'>
+                  <label className='block text-sm font-semibold text-gray-700'>
+                    Ubicación en el mapa
+                  </label>
+                  <button
+                    type='button'
+                    onClick={() => setMapaInteractivo(!mapaInteractivo)}
+                    className={`text-xs font-medium px-3 py-1 rounded-full transition-all ${
+                      mapaInteractivo
+                        ? 'bg-purple-600 text-white shadow-md'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {mapaInteractivo ? '📍 Marcando en mapa' : '🗺️ Marcar en mapa'}
+                  </button>
+                </div>
+                <PreviewMap 
+                  coordinates={editData.coordinates || [6.2442, -75.5812]} 
+                  address={editData.address}
+                  interactive={mapaInteractivo}
+                  onMapClick={handleMapClick}
                 />
+                {mapaInteractivo && (
+                  <p className='text-xs text-purple-600 mt-1 font-medium flex items-center gap-1'>
+                    <span className='inline-block w-1.5 h-1.5 bg-purple-600 rounded-full animate-pulse' />
+                    Navega por el mapa y haz clic para colocar el marcador
+                  </p>
+                )}
+                {cargandoDireccionMapa && (
+                  <p className='text-xs text-blue-600 mt-1 font-medium flex items-center gap-1'>
+                    <Loader2 size={12} className='animate-spin' />
+                    Obteniendo dirección...
+                  </p>
+                )}
+                {!mapaInteractivo && (
+                  <p className='text-xs text-gray-500 mt-1'>
+                    {direccionEncontrada 
+                      ? parsearCoordenadasGoogleMaps(editData.address || '') 
+                        ? '✓ Coordenadas de Google Maps detectadas y ubicadas'
+                        : '✓ Dirección ubicada correctamente' 
+                      : 'Pega una URL de Google Maps o escribe una dirección y presiona Enter'}
+                  </p>
+                )}
               </div>
 
               {/* Calificación de seguridad */}
@@ -492,15 +764,33 @@ export default function AdminPlacesPage() {
                   className='w-full border-2 border-dashed border-purple-300 rounded-xl p-4 text-center hover:border-purple-500 hover:bg-purple-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
                 >
                   {uploadingPhoto ? (
-                    <div className='flex items-center justify-center gap-2'>
-                      <Loader2 className='animate-spin text-purple-600' size={20} />
-                      <span className='text-sm text-purple-700'>Subiendo...</span>
+                    <div className='space-y-2'>
+                      <div className='flex items-center justify-center gap-2'>
+                        <Loader2 className='animate-spin text-purple-600' size={20} />
+                        <span className='text-sm text-purple-700'>Subiendo...</span>
+                      </div>
+                      {uploadProgress && (
+                        <div className='space-y-1'>
+                          <div className='w-full bg-purple-200 rounded-full h-2'>
+                            <div
+                              className='bg-purple-600 h-2 rounded-full transition-all duration-300'
+                              style={{ width: `${uploadProgress.percentage}%` }}
+                            />
+                          </div>
+                          <div className='flex justify-between text-xs text-purple-700'>
+                            <span>{uploadProgress.percentage}%</span>
+                            <span>
+                              {formatBytes(uploadProgress.loaded)} / {formatBytes(uploadProgress.total)}
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <>
                       <Upload size={24} className='mx-auto text-purple-400 mb-1' />
                       <p className='text-sm font-medium text-gray-700'>Agregar fotos o videos</p>
-                      <p className='text-xs text-gray-500'>JPG, PNG, MP4, MOV</p>
+                      <p className='text-xs text-gray-500'>JPG, PNG, MP4, MOV, AVI, WebM • Sin límite de tamaño</p>
                     </>
                   )}
                 </button>
@@ -518,11 +808,7 @@ export default function AdminPlacesPage() {
                     {placePhotos.map((photo) => (
                       <div key={photo.id} className='relative group aspect-square rounded-lg overflow-hidden bg-gray-100'>
                         {/\.(mp4|mov|avi|webm|mkv|3gp)(\?|$)/i.test(photo.url) || photo.url.includes('/videos/') ? (
-                          <video
-                            src={photo.url}
-                            className='w-full h-full object-cover'
-                            muted
-                          />
+                          <video src={photo.url} className='w-full h-full object-cover' muted />
                         ) : (
                           /* eslint-disable-next-line @next/next/no-img-element */
                           <img
