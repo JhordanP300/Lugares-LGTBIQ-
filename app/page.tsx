@@ -97,8 +97,8 @@ export default function Home() {
       >
         {/* Header del Sidebar */}
         <div className='bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 p-6 text-white flex-shrink-0'>
-          <h1 className='text-2xl font-bold mb-2'>🌈 Oikos</h1>
-          <p className='text-sm opacity-90'>Espacios LGBTIQ+ en Medellín</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src='https://res.cloudinary.com/dopa1ol1d/image/upload/q_auto/f_auto/v1782083784/oikos_u1rl59.png' alt='Oikos' className='h-16 mb-2' />
         </div>
 
         {/* Auth section */}
@@ -199,7 +199,7 @@ export default function Home() {
             </h2>
             <p className='text-sm text-gray-700'>
               Esta plataforma fue creada para que la comunidad LGBTIQ+ pueda
-              encontrar y compartir espacios seguros en el Valle de Aburrá.
+              encontrar y compartir espacios seguros en Medellín.
             </p>
           </div>
 
