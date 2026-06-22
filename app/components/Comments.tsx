@@ -169,14 +169,14 @@ export default function Comments({ placeId }: CommentsProps) {
       {/* Sección de Comentarios */}
       <div>
         <h3 className='font-bold text-gray-900 mb-3'>Deja tu comentario</h3>
-        <form onSubmit={handleAddComment} className='bg-purple-50 p-3 sm:p-4 rounded-lg border-2 border-purple-200'>
+        <form onSubmit={handleAddComment} className='bg-[#189089]/10 p-3 sm:p-4 rounded-lg border-2 border-[#189089]/20'>
           <div className='space-y-3'>
             <div>
               <label className='block text-sm font-semibold text-gray-700 mb-1'>Comentar como</label>
               {user ? (
                 <div className='flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg'>
-                  <div className='w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center'>
-                    <User size={16} className='text-purple-600' />
+                  <div className='w-8 h-8 rounded-full bg-[#189089]/15 flex items-center justify-center'>
+                    <User size={16} className='text-[#189089]' />
                   </div>
                   <span className='text-sm font-medium text-gray-900'>{authorName}</span>
                 </div>
@@ -214,14 +214,14 @@ export default function Comments({ placeId }: CommentsProps) {
                 placeholder={user ? 'Cuéntanos tu experiencia en este lugar...' : 'Inicia sesión para comentar'}
                 rows={3}
                 disabled={!user}
-                className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 resize-none disabled:bg-gray-100 disabled:cursor-not-allowed'
+                className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089] resize-none disabled:bg-gray-100 disabled:cursor-not-allowed'
               />
             </div>
 
             <button
               type='submit'
               disabled={!user || !newComment.trim()}
-              className='w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 rounded-lg font-semibold hover:shadow-lg transition-shadow flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
+              className='w-full bg-gradient-to-r from-[#189089] to-[#154280] text-white py-2 rounded-lg font-semibold hover:shadow-lg transition-shadow flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
             >
               <Send size={18} />
               Publicar comentario
@@ -244,7 +244,7 @@ export default function Comments({ placeId }: CommentsProps) {
                 disabled={uploading}
                 className='hidden'
               />
-              <span className='flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold cursor-pointer hover:shadow-lg transition-shadow disabled:opacity-50'>
+              <span className='flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-[#189089] to-[#154280] text-white rounded-lg font-semibold cursor-pointer hover:shadow-lg transition-shadow disabled:opacity-50'>
                 <Upload size={18} />
                 {uploading ? 'Subiendo a Storage...' : 'Subir foto o video'}
               </span>

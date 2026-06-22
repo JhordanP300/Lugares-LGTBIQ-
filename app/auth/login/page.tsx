@@ -79,7 +79,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder='tu@email.com'
-                  className='w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                  className='w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                 />
               </div>
             </div>
@@ -95,7 +95,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder='••••••••'
-                  className='w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                  className='w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                 />
                 <button
                   type='button'
@@ -116,7 +116,7 @@ export default function LoginPage() {
             <button
               type='submit'
               disabled={loading}
-              className='w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow flex items-center justify-center gap-2 disabled:opacity-50'
+              className='w-full bg-gradient-to-r from-[#189089] to-[#154280] text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow flex items-center justify-center gap-2 disabled:opacity-50'
             >
               <LogIn size={18} />
               {loading ? 'Cargando...' : 'Iniciar sesión'}
@@ -125,7 +125,7 @@ export default function LoginPage() {
 
           <div className='text-center text-sm text-gray-600'>
             ¿No tienes cuenta?{' '}
-            <button onClick={() => router.push('/auth/register')} className='text-purple-600 font-semibold hover:text-purple-700'>
+            <button onClick={() => router.push('/auth/register')} className='text-[#189089] font-semibold hover:text-[#154280]'>
               Regístrate
             </button>
           </div>

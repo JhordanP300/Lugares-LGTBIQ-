@@ -107,7 +107,7 @@ export default function ModerationPage() {
           onClick={() => setActiveTab('comments')}
           className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
             activeTab === 'comments'
-              ? 'bg-white text-purple-700 shadow-sm'
+              ? 'bg-white text-[#189089] shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
@@ -118,7 +118,7 @@ export default function ModerationPage() {
           onClick={() => setActiveTab('photos')}
           className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
             activeTab === 'photos'
-              ? 'bg-white text-purple-700 shadow-sm'
+              ? 'bg-white text-[#189089] shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
@@ -138,7 +138,7 @@ export default function ModerationPage() {
 
       {loading ? (
         <div className='flex items-center justify-center py-20'>
-          <Loader2 className='animate-spin text-purple-600' size={40} />
+          <Loader2 className='animate-spin text-[#189089]' size={40} />
         </div>
       ) : activeTab === 'comments' ? (
         <ContentTable

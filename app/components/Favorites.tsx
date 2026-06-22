@@ -50,8 +50,8 @@ export default function Favorites({ onSelectPlace }: FavoritesProps) {
             key={place.id}
             className={`p-3 border rounded-lg transition-all cursor-pointer ${
               selectedFavoriteId === place.id
-                ? 'border-purple-600 bg-purple-50 shadow-md'
-                : 'border-gray-200 bg-white hover:border-purple-400 hover:shadow-sm'
+                ? 'border-[#189089] bg-[#189089]/10 shadow-md'
+                : 'border-gray-200 bg-white hover:border-[#189089] hover:shadow-sm'
             }`}
             onClick={() => {
               setSelectedFavoriteId(place.id);
@@ -120,7 +120,7 @@ export default function Favorites({ onSelectPlace }: FavoritesProps) {
               {/* Badges: LGBTIQ+ Friendly, Accesibilidad */}
               <div className='flex gap-1 flex-wrap pt-1'>
                 {place.lgbtiqFriendly && (
-                  <span className='inline-block px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold'>
+                  <span className='inline-block px-2 py-0.5 bg-[#631e5b]/15 text-[#631e5b] rounded-full text-xs font-semibold'>
                     🌈 LGBTIQ+
                   </span>
                 )}

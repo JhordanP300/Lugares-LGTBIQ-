@@ -124,7 +124,7 @@ export default function PreviewMap({ coordinates, address, interactive = false, 
     return (
       <div className={`w-full ${mapHeight} rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center bg-gray-50`}>
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-[#189089] border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-gray-500">Cargando mapa...</p>
         </div>
       </div>

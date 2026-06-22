@@ -60,7 +60,7 @@ export default function Home() {
       {isAdmin ? (
         <button
           onClick={() => router.push('/admin')}
-          className='fixed bottom-56 right-3 sm:right-4 z-40 bg-gradient-to-r from-purple-600 to-pink-600 text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center gap-2'
+          className='fixed bottom-56 right-3 sm:right-4 z-40 bg-[#25204b] text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center gap-2'
           title='Panel de administración'
         >
           <Shield size={20} className='sm:w-6 sm:h-6' />
@@ -74,7 +74,7 @@ export default function Home() {
             }
             setIsAddPlaceOpen(true);
           }}
-          className='fixed bottom-56 right-3 sm:right-4 z-40 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center gap-2'
+          className='fixed bottom-56 right-3 sm:right-4 z-40 bg-[#c42e89] text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 flex items-center gap-2'
           title={user ? 'Enviar solicitud de lugar' : 'Inicia sesión para enviar solicitudes'}
         >
           <Plus size={20} className='sm:w-6 sm:h-6' />
@@ -84,7 +84,7 @@ export default function Home() {
       {/* Sidebar con información */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className='fixed top-4 right-4 z-40 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-white p-2 rounded-lg md:hidden shadow-lg hover:shadow-xl transition-shadow'
+        className='fixed top-4 right-4 z-40 bg-[#c42e89] text-white p-2 rounded-lg md:hidden shadow-lg hover:shadow-xl transition-shadow'
       >
         {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
@@ -96,7 +96,7 @@ export default function Home() {
         } md:translate-x-0`}
       >
         {/* Header del Sidebar */}
-        <div className='bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 p-6 text-white flex-shrink-0'>
+        <div className='bg-[#189089] p-6 text-white'>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src='https://res.cloudinary.com/dopa1ol1d/image/upload/q_auto/f_auto/v1782083784/oikos_u1rl59.png' alt='Oikos' className='h-16 mb-2' />
         </div>
@@ -108,8 +108,8 @@ export default function Home() {
           ) : user ? (
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2 min-w-0'>
-                <div className='w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0'>
-                  <User size={16} className='text-purple-600' />
+                <div className='w-8 h-8 rounded-full bg-[#189089]/15 flex items-center justify-center flex-shrink-0'>
+                  <User size={16} className='text-[#189089]' />
                 </div>
                 <div className='min-w-0'>
                   <p className='text-sm font-semibold text-gray-900 truncate'>
@@ -122,7 +122,7 @@ export default function Home() {
                 {isAdmin && (
                   <button
                     onClick={() => router.push('/admin')}
-                    className='p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors flex-shrink-0'
+                    className='p-2 text-[#189089] hover:bg-[#189089]/10 rounded-lg transition-colors flex-shrink-0'
                     title='Panel de administración'
                   >
                     <Shield size={16} />
@@ -142,14 +142,14 @@ export default function Home() {
             <div className='space-y-2'>
               <button
                 onClick={() => router.push('/auth/register')}
-                className='w-full flex items-center justify-center gap-2 py-2 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-sm font-semibold hover:shadow-lg transition-shadow'
+                className='w-full flex items-center justify-center gap-2 py-2 px-4 bg-[#154280] text-white rounded-lg text-sm font-semibold hover:shadow-lg transition-shadow'
               >
                 <UserPlus size={16} />
                 Regístrate
               </button>
               <button
                 onClick={() => router.push('/auth/login')}
-                className='w-full flex items-center justify-center gap-2 py-2 px-4 border border-purple-600 text-purple-600 rounded-lg text-sm font-semibold hover:bg-purple-50 transition-colors'
+                className='w-full flex items-center justify-center gap-2 py-2 px-4 border border-[#189089] text-[#189089] rounded-lg text-sm font-semibold hover:bg-[#189089]/10 transition-colors'
               >
                 <LogIn size={16} />
                 Iniciar sesión
@@ -166,7 +166,7 @@ export default function Home() {
             onClick={() => setSidebarTab('inicio')}
             className={`flex-1 py-3 px-4 text-center font-medium text-sm transition-colors flex items-center justify-center gap-2 ${
               sidebarTab === 'inicio'
-                ? 'border-b-2 border-purple-600 text-purple-600 bg-white'
+                ? 'border-b-2 border-[#189089] text-[#189089] bg-white'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
             title='Ver información general'
@@ -178,7 +178,7 @@ export default function Home() {
             onClick={() => setSidebarTab('favoritos')}
             className={`flex-1 py-3 px-4 text-center font-medium text-sm transition-colors flex items-center justify-center gap-2 ${
               sidebarTab === 'favoritos'
-                ? 'border-b-2 border-red-500 text-red-600 bg-white'
+                ? 'border-b-2 border-[#c42e89] text-[#c42e89] bg-white'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
             title='Ver mis favoritos'
@@ -192,9 +192,9 @@ export default function Home() {
         {sidebarTab === 'inicio' && (
           <div className='p-6 space-y-6'>
           {/* Bienvenida */}
-          <div className='bg-purple-50 rounded-lg p-4 border-l-4 border-purple-600'>
+          <div className='bg-[#189089]/10 rounded-lg p-4 border-l-4 border-[#189089]'>
             <h2 className='font-bold text-gray-900 mb-2 flex items-center gap-2'>
-              <Info size={18} className='text-purple-600' />
+              <Info size={18} className='text-[#189089]' />
               Bienvenide
             </h2>
             <p className='text-sm text-gray-700'>
@@ -204,7 +204,7 @@ export default function Home() {
           </div>
 
           {/* Estadísticas */}
-          <div className='bg-blue-50 rounded-lg p-4 border-l-4 border-blue-600'>
+          <div className='bg-[#154280]/10 rounded-lg p-4 border-l-4 border-[#154280]'>
             <h3 className='font-bold text-gray-900 mb-2'>📊 Comunidad</h3>
             <p className='text-sm text-gray-700'>
               <strong>{places.length}</strong> lugares registrados
@@ -216,19 +216,19 @@ export default function Home() {
             <h3 className='font-bold text-gray-900 mb-3'>¿Cómo usar?</h3>
             <ol className='space-y-2 text-sm text-gray-700'>
               <li className='flex gap-2'>
-                <span className='font-bold text-purple-600 flex-shrink-0'>1.</span>
+                <span className='font-bold text-[#189089] flex-shrink-0'>1.</span>
                 <span>Explora el mapa para encontrar lugares seguros</span>
               </li>
               <li className='flex gap-2'>
-                <span className='font-bold text-purple-600 flex-shrink-0'>2.</span>
+                <span className='font-bold text-[#189089] flex-shrink-0'>2.</span>
                 <span>Haz clic en un ícono para ver detalles</span>
               </li>
               <li className='flex gap-2'>
-                <span className='font-bold text-purple-600 flex-shrink-0'>3.</span>
+                <span className='font-bold text-[#189089] flex-shrink-0'>3.</span>
                 <span>Lee comentarios y fotos de otros visitantes</span>
               </li>
               <li className='flex gap-2'>
-                <span className='font-bold text-purple-600 flex-shrink-0'>4.</span>
+                <span className='font-bold text-[#189089] flex-shrink-0'>4.</span>
                 <span>Agrega nuevos lugares que conoces</span>
               </li>
             </ol>
@@ -241,7 +241,7 @@ export default function Home() {
                 setIsAddPlaceOpen(true);
                 setSidebarOpen(false);
               }}
-              className='w-full bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow flex items-center justify-center gap-2'
+              className='w-full bg-[#25204b] text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow flex items-center justify-center gap-2'
             >
               <Plus size={20} />
               Agregar Lugar Directamente
@@ -256,7 +256,7 @@ export default function Home() {
                 setIsAddPlaceOpen(true);
                 setSidebarOpen(false);
               }}
-              className='w-full bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow flex items-center justify-center gap-2'
+              className='w-full bg-[#c42e89] text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow flex items-center justify-center gap-2'
             >
               <Plus size={20} />
               Enviar Solicitud de Lugar
@@ -299,7 +299,7 @@ export default function Home() {
           </div>
 
           {/* Valores */}
-          <div className='bg-blue-50 rounded-lg p-4 border-l-4 border-blue-600'>
+          <div className='bg-[#154280]/10 rounded-lg p-4 border-l-4 border-[#154280]'>
             <h3 className='font-bold text-gray-900 mb-2'>Nuestros Valores</h3>
             <ul className='space-y-1 text-xs text-gray-700'>
               <li>✨ Seguridad y confianza</li>
@@ -310,7 +310,7 @@ export default function Home() {
           </div>
 
           {/* Aviso */}
-          <div className='bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-600 text-xs text-gray-700'>
+          <div className='bg-[#da863d]/10 rounded-lg p-4 border-l-4 border-[#da863d] text-xs text-gray-700'>
             <p>
               <strong>Nota:</strong> Esta plataforma es comunitaria. Los
               comentarios y fotos compartidas son públicos.
@@ -353,7 +353,7 @@ export default function Home() {
             className='bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-300'
             onClick={(e) => e.stopPropagation()}
           >
-            <div className='bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 p-6 text-center'>
+            <div className='bg-gradient-to-r from-[#189089] to-[#154280] p-6 text-center'>
               <span className='text-5xl block mb-3'>🌈</span>
               <h2 className='text-2xl font-bold text-white'>¡Bienvenide a Oikos!</h2>
             </div>
@@ -361,7 +361,7 @@ export default function Home() {
               <p className='text-gray-700 text-center'>
                 Un espacio para encontrar y compartir <strong>lugares seguros</strong> para la comunidad LGBTIQ+ en el Valle de Aburrá.
               </p>
-              <div className='bg-purple-50 rounded-lg p-4 space-y-2'>
+              <div className='bg-[#189089]/10 rounded-lg p-4 space-y-2'>
                 <p className='text-sm text-gray-700'>🗺️ <strong>Explora</strong> el mapa para descubrir lugares cercanos</p>
                 <p className='text-sm text-gray-700'>⭐ <strong>Comenta</strong> y comparte tu experiencia</p>
                 <p className='text-sm text-gray-700'>📸 <strong>Sube fotos</strong> de los lugares que visites</p>
@@ -369,7 +369,7 @@ export default function Home() {
               </div>
               <button
                 onClick={() => setShowWelcome(false)}
-                className='w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow'
+                className='w-full bg-[#189089] text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow'
               >
                 ¡Empezar a explorar!
               </button>

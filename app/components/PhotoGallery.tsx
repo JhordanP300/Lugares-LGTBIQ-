@@ -107,7 +107,7 @@ export default function PhotoGallery({ placeId }: PhotoGalleryProps) {
   return (
     <div className='space-y-4'>
       {/* Formulario de carga */}
-      <div className='bg-purple-50 p-3 sm:p-4 rounded-lg border-2 border-purple-200'>
+      <div className='bg-[#189089]/10 p-3 sm:p-4 rounded-lg border-2 border-[#189089]/20'>
         <h3 className='font-bold text-gray-900 mb-3'>Compartir tu foto</h3>
         <div className='space-y-3'>
           <input
@@ -115,7 +115,7 @@ export default function PhotoGallery({ placeId }: PhotoGalleryProps) {
             value={authorName}
             onChange={(e) => setAuthorName(e.target.value)}
             placeholder='Tu nombre'
-            className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+            className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
           />
 
           <label className='block'>
@@ -126,7 +126,7 @@ export default function PhotoGallery({ placeId }: PhotoGalleryProps) {
               disabled={uploading}
               className='hidden'
             />
-            <span className='flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold cursor-pointer hover:shadow-lg transition-shadow disabled:opacity-50'>
+            <span className='flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-[#189089] to-[#154280] text-white rounded-lg font-semibold cursor-pointer hover:shadow-lg transition-shadow disabled:opacity-50'>
               <Upload size={18} />
               {uploading ? 'Subiendo...' : 'Subir foto'}
             </span>

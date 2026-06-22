@@ -35,7 +35,7 @@ export default function StatsCharts({ placesByCategory, userStats }: StatsCharts
                   </div>
                   <div className='w-full h-3 bg-gray-100 rounded-full overflow-hidden'>
                     <div
-                      className='h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500'
+                      className='h-full bg-gradient-to-r from-[#189089] to-[#c42e89] rounded-full transition-all duration-500'
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
@@ -52,12 +52,12 @@ export default function StatsCharts({ placesByCategory, userStats }: StatsCharts
       <div className='bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-100'>
         <h3 className='text-base md:text-lg font-bold text-gray-900 mb-3 md:mb-4'>Distribución de Usuarios</h3>
         <div className='space-y-2 md:space-y-4'>
-          <div className='flex items-center justify-between p-2 md:p-3 bg-purple-50 rounded-lg'>
+          <div className='flex items-center justify-between p-2 md:p-3 bg-[#189089]/10 rounded-lg'>
             <div className='flex items-center gap-3'>
-              <div className='w-4 h-4 rounded-full bg-purple-500' />
+              <div className='w-4 h-4 rounded-full bg-[#189089]' />
               <span className='text-sm font-medium text-gray-700'>Administradores</span>
             </div>
-            <span className='text-lg md:text-xl font-bold text-purple-600'>{userStats.admins}</span>
+            <span className='text-lg md:text-xl font-bold text-[#189089]'>{userStats.admins}</span>
           </div>
           <div className='flex items-center justify-between p-2 md:p-3 bg-gray-50 rounded-lg'>
             <div className='flex items-center gap-3'>

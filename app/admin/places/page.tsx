@@ -385,7 +385,7 @@ export default function AdminPlacesPage() {
 
       {loading ? (
         <div className='flex items-center justify-center py-20'>
-          <Loader2 className='animate-spin text-purple-600' size={40} />
+          <Loader2 className='animate-spin text-[#189089]' size={40} />
         </div>
       ) : places.length === 0 ? (
         <div className='text-center py-20 bg-white rounded-xl border border-gray-100'>
@@ -398,7 +398,7 @@ export default function AdminPlacesPage() {
               <div className='p-4'>
                 <div className='flex items-start justify-between gap-2 mb-2'>
                   <div className='flex-1 min-w-0'>
-                    <span className='inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700 mb-1'>
+                    <span className='inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-[#189089]/15 text-[#189089] mb-1'>
                       {categoryLabels[place.category] || place.category}
                     </span>
                     <h3 className='font-bold text-gray-900 truncate'>{place.name}</h3>
@@ -459,7 +459,7 @@ export default function AdminPlacesPage() {
             style={{ maxHeight: 'min(95vh, 95dvh)' }}
           >
             {/* Header */}
-            <div className='flex-shrink-0 bg-gradient-to-r from-blue-600 to-purple-600 p-4 sm:p-6 rounded-t-2xl sm:rounded-t-2xl relative'>
+            <div className='flex-shrink-0 bg-gradient-to-r from-[#189089] to-[#154280] p-4 sm:p-6 rounded-t-2xl sm:rounded-t-2xl relative'>
               <button
                 onClick={() => setEditingPlace(null)}
                 className='absolute top-3 right-3 z-10 bg-white/30 hover:bg-white/50 rounded-full p-2 transition-colors'
@@ -479,7 +479,7 @@ export default function AdminPlacesPage() {
                   type='text'
                   value={editData.name || ''}
                   onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                 />
               </div>
 
@@ -490,7 +490,7 @@ export default function AdminPlacesPage() {
                   value={editData.description || ''}
                   onChange={(e) => setEditData({ ...editData, description: e.target.value })}
                   rows={3}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 resize-none'
+                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089] resize-none'
                 />
               </div>
 
@@ -501,7 +501,7 @@ export default function AdminPlacesPage() {
                   <select
                     value={editData.category || 'cafe'}
                     onChange={(e) => setEditData({ ...editData, category: e.target.value as Place['category'] })}
-                    className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                    className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                   >
                     {categories.map((cat) => (
                       <option key={cat.value} value={cat.value}>{cat.label}</option>
@@ -513,7 +513,7 @@ export default function AdminPlacesPage() {
                   <select
                     value={editData.barrio || ''}
                     onChange={(e) => setEditData({ ...editData, barrio: e.target.value })}
-                    className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                    className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                   >
                     <option value=''>Selecciona un barrio</option>
                     {barrios.map((b) => (
@@ -539,10 +539,10 @@ export default function AdminPlacesPage() {
                     onFocus={() => sugerencias.length > 0 && setMostrarSugerencias(true)}
                     onBlur={() => setTimeout(() => setMostrarSugerencias(false), 200)}
                     placeholder='Pega una URL de Google Maps o escribe la dirección'
-                    className='w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                    className='w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                   />
                   {buscandoDireccion && (
-                    <Loader2 size={16} className='absolute right-3 top-1/2 -translate-y-1/2 text-purple-600 animate-spin' />
+                    <Loader2 size={16} className='absolute right-3 top-1/2 -translate-y-1/2 text-[#189089] animate-spin' />
                   )}
                   {direccionEncontrada && !buscandoDireccion && (
                     <MapPin size={16} className='absolute right-3 top-1/2 -translate-y-1/2 text-green-500' />
@@ -566,10 +566,10 @@ export default function AdminPlacesPage() {
                           key={sugerencia.placeId}
                           type='button'
                           onClick={() => seleccionarSugerencia(sugerencia)}
-                          className='w-full text-left px-4 py-3 hover:bg-purple-50 border-b border-gray-100 last:border-0 transition-colors'
+                          className='w-full text-left px-4 py-3 hover:bg-[#189089]/10 border-b border-gray-100 last:border-0 transition-colors'
                         >
                           <div className='flex items-start gap-2'>
-                            <MapPin size={14} className='text-purple-600 mt-0.5 flex-shrink-0' />
+                            <MapPin size={14} className='text-[#189089] mt-0.5 flex-shrink-0' />
                             <span className='text-sm text-gray-700 line-clamp-2'>
                               {sugerencia.displayName}
                             </span>
@@ -593,7 +593,7 @@ export default function AdminPlacesPage() {
                     onClick={() => setMapaInteractivo(!mapaInteractivo)}
                     className={`text-xs font-medium px-3 py-1 rounded-full transition-all ${
                       mapaInteractivo
-                        ? 'bg-purple-600 text-white shadow-md'
+                        ? 'bg-[#189089] text-white shadow-md'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -607,8 +607,8 @@ export default function AdminPlacesPage() {
                   onMapClick={handleMapClick}
                 />
                 {mapaInteractivo && (
-                  <p className='text-xs text-purple-600 mt-1 font-medium flex items-center gap-1'>
-                    <span className='inline-block w-1.5 h-1.5 bg-purple-600 rounded-full animate-pulse' />
+                  <p className='text-xs text-[#189089] mt-1 font-medium flex items-center gap-1'>
+                    <span className='inline-block w-1.5 h-1.5 bg-[#189089] rounded-full animate-pulse' />
                     Navega por el mapa y haz clic para colocar el marcador
                   </p>
                 )}
@@ -642,7 +642,7 @@ export default function AdminPlacesPage() {
                     >
                       <span className='text-2xl'>
                         {rating <= (editData.safetyRating || 5) ? (
-                          <ShieldCheck className='text-purple-600' size={24} />
+                          <ShieldCheck className='text-[#189089]' size={24} />
                         ) : (
                           <Shield className='text-gray-300' size={24} />
                         )}
@@ -662,7 +662,7 @@ export default function AdminPlacesPage() {
                     value={editData.phone || ''}
                     onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
                     placeholder='ej: +57 300 123 4567'
-                    className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                    className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                   />
                 </div>
                 <div>
@@ -672,7 +672,7 @@ export default function AdminPlacesPage() {
                     value={editData.website || ''}
                     onChange={(e) => setEditData({ ...editData, website: e.target.value })}
                     placeholder='ej: www.milugar.com'
-                    className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                    className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                   />
                 </div>
                 <div>
@@ -682,7 +682,7 @@ export default function AdminPlacesPage() {
                     value={editData.hours || ''}
                     onChange={(e) => setEditData({ ...editData, hours: e.target.value })}
                     placeholder='ej: Lun-Dom: 8AM - 10PM'
-                    className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                    className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                   />
                 </div>
               </div>
@@ -692,12 +692,12 @@ export default function AdminPlacesPage() {
                 <label className='block text-sm font-semibold text-gray-700 mb-2'>♿ Accesibilidad</label>
                 <div className='grid grid-cols-2 gap-2'>
                   {accessibilityOptions.map((option) => (
-                    <label key={option} className='flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:bg-purple-50 cursor-pointer transition-colors'>
+                    <label key={option} className='flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:bg-[#189089]/10 cursor-pointer transition-colors'>
                       <input
                         type='checkbox'
                         checked={editData.accessibility?.includes(option) || false}
                         onChange={() => toggleAccessibility(option)}
-                        className='w-4 h-4 rounded border-gray-300 text-purple-600'
+                        className='w-4 h-4 rounded border-gray-300 text-[#189089]'
                       />
                       <span className='text-sm text-gray-700'>{option}</span>
                     </label>
@@ -721,7 +721,7 @@ export default function AdminPlacesPage() {
                         value={link}
                         onChange={(e) => updateSocialLink(index, e.target.value)}
                         placeholder='ej: https://instagram.com/milugar'
-                        className='flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-sm'
+                        className='flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089] text-sm'
                       />
                       <button
                         type='button'
@@ -737,7 +737,7 @@ export default function AdminPlacesPage() {
                 <button
                   type='button'
                   onClick={addSocialLink}
-                  className='mt-2 flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-600 hover:bg-purple-50 rounded-lg transition-colors border border-dashed border-purple-300 w-full justify-center'
+                  className='mt-2 flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#189089] hover:bg-[#189089]/10 rounded-lg transition-colors border border-dashed border-[#189089]/30 w-full justify-center'
                 >
                   <Plus size={16} />
                   Agregar red social
@@ -761,23 +761,23 @@ export default function AdminPlacesPage() {
                   type='button'
                   onClick={() => photoInputRef.current?.click()}
                   disabled={uploadingPhoto}
-                  className='w-full border-2 border-dashed border-purple-300 rounded-xl p-4 text-center hover:border-purple-500 hover:bg-purple-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                  className='w-full border-2 border-dashed border-[#189089]/30 rounded-xl p-4 text-center hover:border-[#189089] hover:bg-[#189089]/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
                 >
                   {uploadingPhoto ? (
                     <div className='space-y-2'>
                       <div className='flex items-center justify-center gap-2'>
-                        <Loader2 className='animate-spin text-purple-600' size={20} />
-                        <span className='text-sm text-purple-700'>Subiendo...</span>
+                        <Loader2 className='animate-spin text-[#189089]' size={20} />
+                        <span className='text-sm text-[#189089]'>Subiendo...</span>
                       </div>
                       {uploadProgress && (
                         <div className='space-y-1'>
-                          <div className='w-full bg-purple-200 rounded-full h-2'>
+                          <div className='w-full bg-[#189089]/25 rounded-full h-2'>
                             <div
-                              className='bg-purple-600 h-2 rounded-full transition-all duration-300'
+                              className='bg-[#189089] h-2 rounded-full transition-all duration-300'
                               style={{ width: `${uploadProgress.percentage}%` }}
                             />
                           </div>
-                          <div className='flex justify-between text-xs text-purple-700'>
+                          <div className='flex justify-between text-xs text-[#189089]'>
                             <span>{uploadProgress.percentage}%</span>
                             <span>
                               {formatBytes(uploadProgress.loaded)} / {formatBytes(uploadProgress.total)}
@@ -788,7 +788,7 @@ export default function AdminPlacesPage() {
                     </div>
                   ) : (
                     <>
-                      <Upload size={24} className='mx-auto text-purple-400 mb-1' />
+                      <Upload size={24} className='mx-auto text-[#189089]/60 mb-1' />
                       <p className='text-sm font-medium text-gray-700'>Agregar fotos o videos</p>
                       <p className='text-xs text-gray-500'>JPG, PNG, MP4, MOV, AVI, WebM</p>
                       <p className='text-xs text-orange-500 font-medium'>Videos: máximo 100MB</p>
@@ -850,7 +850,7 @@ export default function AdminPlacesPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className='flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg disabled:opacity-50 transition-all'
+                className='flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#189089] to-[#154280] text-white rounded-lg font-semibold hover:shadow-lg disabled:opacity-50 transition-all'
               >
                 {saving ? <Loader2 className='animate-spin' size={18} /> : <Save size={18} />}
                 Guardar Cambios

@@ -152,7 +152,7 @@ export default function RequestCard({
               {request.website && (
                 <div className='flex items-center gap-1'>
                   <Globe size={12} className='text-gray-400' />
-                  <span className='font-medium text-purple-600 truncate'>{request.website}</span>
+                  <span className='font-medium text-[#189089] truncate'>{request.website}</span>
                 </div>
               )}
               {request.hours && (
@@ -245,7 +245,7 @@ export default function RequestCard({
                       : 'Ej: La dirección no corresponde a un lugar público.'
                   }
                   rows={3}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-600 resize-none'
+                  className='w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#189089] resize-none'
                 />
               </div>
 

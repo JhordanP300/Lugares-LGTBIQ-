@@ -144,7 +144,7 @@ export default function NotificationBell({ pendingCount = 0 }: NotificationBellP
                     key={notif.id}
                     onClick={() => toggleExpand(notif.id)}
                     className={`px-4 py-3 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors ${
-                      !notif.read && !isExpanded ? 'bg-purple-50' : ''
+                      !notif.read && !isExpanded ? 'bg-[#189089]/10' : ''
                     }`}
                   >
                     <div className='flex items-start gap-3'>

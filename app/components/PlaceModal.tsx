@@ -31,7 +31,7 @@ function getSocialIcon(url: string) {
   if (lower.includes('twitter') || lower.includes('x.com')) return <span className='text-sm font-bold'>𝕏</span>;
   if (lower.includes('youtube')) return <span className='text-sm'>▶️</span>;
   if (lower.includes('wa.me') || lower.includes('whatsapp')) return <span className='text-sm'>💬</span>;
-  return <Globe size={18} className='text-purple-600' />;
+  return <Globe size={18} className='text-[#189089]' />;
 }
 
 function getSocialName(url: string) {
@@ -76,7 +76,7 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
   };
 
   const getRainbowGradient = () => {
-    return 'bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500';
+    return 'bg-gradient-to-r from-[#189089] to-[#154280]';
   };
 
   const hasSocialLinks = place.socialLinks && place.socialLinks.length > 0;
@@ -146,7 +146,7 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
               onClick={() => setActiveTab(tab)}
               className={`flex-1 py-3 text-center font-medium transition-colors ${
                 activeTab === tab
-                  ? 'border-b-2 border-purple-600 text-purple-600'
+                  ? 'border-b-2 border-[#189089] text-[#189089]'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
@@ -169,7 +169,7 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
               {/* Fotos */}
               {loadingPhotos ? (
                 <div className='flex items-center justify-center py-6'>
-                  <div className='w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin' />
+                  <div className='w-6 h-6 border-2 border-[#189089] border-t-transparent rounded-full animate-spin' />
                 </div>
               ) : photos.length > 0 ? (
                 <div>
@@ -190,7 +190,7 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
                             />
                             <div className='absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors'>
                               <div className='bg-white/90 rounded-full p-2'>
-                                <Play size={20} className='text-purple-600 ml-0.5' fill='currentColor' />
+                                <Play size={20} className='text-[#189089] ml-0.5' fill='currentColor' />
                               </div>
                             </div>
                           </>
@@ -212,7 +212,7 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
               {/* Información de contacto */}
               <div className='bg-gray-50 rounded-lg p-4 space-y-3'>
                 <div className='flex items-center gap-3'>
-                  <MapPin size={18} className='text-purple-600 flex-shrink-0' />
+                  <MapPin size={18} className='text-[#189089] flex-shrink-0' />
                   <div>
                     <p className='text-sm text-gray-600'>Dirección</p>
                     <p className='font-semibold text-gray-900'>{place.address}</p>
@@ -221,12 +221,12 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
 
                 {place.phone && (
                   <div className='flex items-center gap-3'>
-                    <Phone size={18} className='text-purple-600 flex-shrink-0' />
+                    <Phone size={18} className='text-[#189089] flex-shrink-0' />
                     <div>
                       <p className='text-sm text-gray-600'>Teléfono</p>
                       <a
                         href={`tel:${place.phone}`}
-                        className='font-semibold text-purple-600 hover:text-purple-700'
+                        className='font-semibold text-[#189089] hover:text-[#154280]'
                       >
                         {place.phone}
                       </a>
@@ -236,14 +236,14 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
 
                 {place.website && (
                   <div className='flex items-center gap-3'>
-                    <Globe size={18} className='text-purple-600 flex-shrink-0' />
+                    <Globe size={18} className='text-[#189089] flex-shrink-0' />
                     <div>
                       <p className='text-sm text-gray-600'>Website</p>
                       <a
                         href={place.website}
                         target='_blank'
                         rel='noopener noreferrer'
-                        className='font-semibold text-purple-600 hover:text-purple-700'
+                        className='font-semibold text-[#189089] hover:text-[#154280]'
                       >
                         {place.website}
                       </a>
@@ -253,7 +253,7 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
 
                 {place.hours && (
                   <div className='flex items-center gap-3'>
-                    <Clock size={18} className='text-purple-600 flex-shrink-0' />
+                    <Clock size={18} className='text-[#189089] flex-shrink-0' />
                     <div>
                       <p className='text-sm text-gray-600'>Horario</p>
                       <p className='font-semibold text-gray-900'>{place.hours}</p>
@@ -273,13 +273,13 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
                         href={link}
                         target='_blank'
                         rel='noopener noreferrer'
-                        className='flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl hover:border-purple-300 hover:bg-purple-50 transition-all group'
+                        className='flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl hover:border-[#189089] hover:bg-[#189089]/10 transition-all group'
                       >
                         {getSocialIcon(link)}
-                        <span className='text-sm font-medium text-gray-700 group-hover:text-purple-700'>
+                        <span className='text-sm font-medium text-gray-700 group-hover:text-[#154280]'>
                           {getSocialName(link)}
                         </span>
-                        <ExternalLink size={12} className='text-gray-400 group-hover:text-purple-500' />
+                        <ExternalLink size={12} className='text-gray-400 group-hover:text-[#189089]' />
                       </a>
                     ))}
                   </div>
@@ -303,7 +303,7 @@ export default function PlaceModal({ place, isOpen, onClose }: PlaceModalProps) 
               {/* Botón para ir */}
               <button
                 onClick={openGoogleMaps}
-                className='w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow'
+                className='w-full bg-gradient-to-r from-[#189089] to-[#154280] text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow'
               >
                 📍 Cómo llegar
               </button>

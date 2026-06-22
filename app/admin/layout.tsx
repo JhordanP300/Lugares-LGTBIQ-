@@ -61,7 +61,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return (
       <div className='w-full h-screen flex items-center justify-center bg-gray-50'>
         <div className='text-center'>
-          <Loader2 className='animate-spin text-purple-600 mx-auto' size={40} />
+          <Loader2 className='animate-spin text-[#189089] mx-auto' size={40} />
           <p className='mt-4 text-gray-600'>Verificando permisos...</p>
         </div>
       </div>
@@ -77,7 +77,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         } md:translate-x-0`}
       >
         <div className='flex items-center justify-between p-4 border-b'>
-          <Link href='/' className='flex items-center gap-2 text-purple-600 font-bold text-lg'>
+          <Link href='/' className='flex items-center gap-2 text-[#189089] font-bold text-lg'>
             <ArrowLeft size={20} />
             Volver al mapa
           </Link>
@@ -89,14 +89,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </button>
         </div>
 
-        <div className='p-4 border-b bg-purple-50'>
+        <div className='p-4 border-b bg-[#189089]/10'>
           <div className='flex items-center gap-2'>
-            <div className='w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold'>
+            <div className='w-10 h-10 rounded-full bg-[#189089] flex items-center justify-center text-white font-bold'>
               {profile?.name?.charAt(0)?.toUpperCase() || 'A'}
             </div>
             <div>
               <p className='font-semibold text-gray-900 text-sm'>{profile?.name}</p>
-              <p className='text-xs text-purple-600 font-medium'>Administrador</p>
+              <p className='text-xs text-[#189089] font-medium'>Administrador</p>
             </div>
           </div>
         </div>
@@ -112,7 +112,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-purple-100 text-purple-700'
+                    ? 'bg-[#189089]/15 text-[#189089]'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >

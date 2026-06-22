@@ -150,7 +150,7 @@ export default function RequestsPage() {
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as typeof filter)}
-            className='px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-600'
+            className='px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#189089]'
           >
             <option value='all'>Todas</option>
             <option value='pending'>Pendientes</option>
@@ -166,7 +166,7 @@ export default function RequestsPage() {
 
       {loading ? (
         <div className='flex items-center justify-center py-20'>
-          <Loader2 className='animate-spin text-purple-600' size={40} />
+          <Loader2 className='animate-spin text-[#189089]' size={40} />
         </div>
       ) : requests.length === 0 ? (
         <div className='text-center py-20 bg-white rounded-xl border border-gray-100'>

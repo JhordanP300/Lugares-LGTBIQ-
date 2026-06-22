@@ -66,7 +66,7 @@ export default function RegisterPage() {
             </p>
             <button
               onClick={() => router.push('/auth/login')}
-              className='w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors'
+              className='w-full bg-[#189089] text-white py-3 rounded-lg font-semibold hover:bg-[#154280] transition-colors'
             >
               Ir a iniciar sesión
             </button>
@@ -124,7 +124,7 @@ export default function RegisterPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder='Tu nombre'
-                  className='w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                  className='w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                 />
               </div>
             </div>
@@ -139,7 +139,7 @@ export default function RegisterPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder='tu@email.com'
-                  className='w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                  className='w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                 />
               </div>
             </div>
@@ -155,7 +155,7 @@ export default function RegisterPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder='Mínimo 6 caracteres'
-                  className='w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                  className='w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                 />
                 <button
                   type='button'
@@ -178,7 +178,7 @@ export default function RegisterPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder='Repite tu contraseña'
-                  className='w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                  className='w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                 />
               </div>
             </div>
@@ -190,7 +190,7 @@ export default function RegisterPage() {
                   <div className='mt-2'>
                     <button
                       onClick={() => router.push('/auth/login')}
-                      className='text-purple-600 font-semibold hover:text-purple-700 underline'
+                      className='text-[#189089] font-semibold hover:text-[#154280] underline'
                     >
                       Ir a iniciar sesión
                     </button>
@@ -202,7 +202,7 @@ export default function RegisterPage() {
             <button
               type='submit'
               disabled={loading}
-              className='w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow flex items-center justify-center gap-2 disabled:opacity-50'
+              className='w-full bg-gradient-to-r from-[#189089] to-[#154280] text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow flex items-center justify-center gap-2 disabled:opacity-50'
             >
               <UserPlus size={18} />
               {loading ? 'Creando cuenta...' : 'Crear cuenta'}
@@ -212,7 +212,7 @@ export default function RegisterPage() {
           {/* Toggle */}
           <div className='text-center text-sm text-gray-600'>
             ¿Ya tienes cuenta?{' '}
-            <button onClick={() => router.push('/auth/login')} className='text-purple-600 font-semibold hover:text-purple-700'>
+            <button onClick={() => router.push('/auth/login')} className='text-[#189089] font-semibold hover:text-[#154280]'>
               Inicia sesión
             </button>
           </div>

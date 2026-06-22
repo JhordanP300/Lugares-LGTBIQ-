@@ -20,7 +20,7 @@ export default function UserTable({
   isProcessing,
 }: UserTableProps) {
   const roleColors = {
-    admin: 'bg-purple-100 text-purple-800 border-purple-200',
+    admin: 'bg-[#189089]/15 text-[#189089] border-[#189089]/20',
     user: 'bg-gray-100 text-gray-700 border-gray-200',
   };
 
@@ -66,14 +66,14 @@ export default function UserTable({
                 <tr key={user.id} className='hover:bg-gray-50'>
                   <td className='px-4 py-3'>
                     <div className='flex items-center gap-3'>
-                      <div className='w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0'>
-                        <User size={16} className='text-purple-600' />
+                      <div className='w-9 h-9 rounded-full bg-[#189089]/15 flex items-center justify-center flex-shrink-0'>
+                        <User size={16} className='text-[#189089]' />
                       </div>
                       <div className='min-w-0'>
                         <p className='font-medium text-gray-900 truncate text-sm'>
                           {user.name}
                           {isCurrentUser && (
-                            <span className='text-xs text-purple-600 ml-1'>(tú)</span>
+                            <span className='text-xs text-[#189089] ml-1'>(tú)</span>
                           )}
                         </p>
                         <p className='text-xs text-gray-500 truncate'>ID: {user.id.slice(0, 8)}...</p>
@@ -100,7 +100,7 @@ export default function UserTable({
                             <button
                               onClick={() => onRoleChange(user.id, 'admin')}
                               disabled={isProcessingThis}
-                              className='p-1.5 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors disabled:opacity-50'
+                              className='p-1.5 text-[#189089] hover:bg-[#189089]/10 rounded-lg transition-colors disabled:opacity-50'
                               title='Hacer admin'
                             >
                               {isProcessingThis ? (
@@ -151,14 +151,14 @@ export default function UserTable({
           return (
             <div key={user.id} className='p-4 space-y-3'>
               <div className='flex items-center gap-3'>
-                <div className='w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0'>
-                  <User size={18} className='text-purple-600' />
+                <div className='w-10 h-10 rounded-full bg-[#189089]/15 flex items-center justify-center flex-shrink-0'>
+                  <User size={18} className='text-[#189089]' />
                 </div>
                 <div className='flex-1 min-w-0'>
                   <p className='font-medium text-gray-900 truncate'>
                     {user.name}
                     {isCurrentUser && (
-                      <span className='text-xs text-purple-600 ml-1'>(tú)</span>
+                      <span className='text-xs text-[#189089] ml-1'>(tú)</span>
                     )}
                   </p>
                   <p className='text-xs text-gray-500'>
@@ -180,7 +180,7 @@ export default function UserTable({
                     <button
                       onClick={() => onRoleChange(user.id, 'admin')}
                       disabled={isProcessingThis}
-                      className='flex-1 flex items-center justify-center gap-1 py-2 text-xs font-medium text-purple-700 bg-purple-50 rounded-lg hover:bg-purple-100 disabled:opacity-50'
+                      className='flex-1 flex items-center justify-center gap-1 py-2 text-xs font-medium text-[#189089] bg-[#189089]/10 rounded-lg hover:bg-[#189089]/15 disabled:opacity-50'
                     >
                       {isProcessingThis ? <Loader2 className='animate-spin' size={14} /> : <ArrowUp size={14} />}
                       Hacer admin

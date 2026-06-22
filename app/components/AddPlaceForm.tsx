@@ -420,7 +420,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
         style={{ maxHeight: 'min(95vh, 95dvh)' }}
       >
         {/* Header */}
-        <div className='flex-shrink-0 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 p-3 sm:p-6 rounded-t-2xl sm:rounded-t-2xl relative'>
+        <div className='flex-shrink-0 bg-gradient-to-r from-[#189089] to-[#154280] p-3 sm:p-6 rounded-t-2xl sm:rounded-t-2xl relative'>
           <button
             onClick={handleClose}
             disabled={isProcessing}
@@ -447,7 +447,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                 onClick={() => s < step && !isProcessing && setStep(s)}
                 className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm transition-colors ${
                   s === step
-                    ? 'bg-purple-600 text-white'
+                    ? 'bg-[#189089] text-white'
                     : s < step
                       ? 'bg-green-500 text-white cursor-pointer'
                       : 'bg-gray-200 text-gray-600'
@@ -483,7 +483,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder='ej: Café Rainbow'
-                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                 />
               </div>
 
@@ -497,7 +497,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder='Describe el lugar, su ambiente y por qué es especial para la comunidad LGBTIQ+...'
                   rows={4}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 resize-none'
+                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089] resize-none'
                 />
               </div>
 
@@ -515,7 +515,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                         category: e.target.value as Place['category'],
                       })
                     }
-                    className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                    className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                   >
                     {categories.map((cat) => (
                       <option key={cat.value} value={cat.value}>
@@ -531,7 +531,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                   </label>
                   {loadingBarrios ? (
                     <div className='w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 flex items-center gap-2'>
-                      <Loader2 className='animate-spin text-purple-600' size={16} />
+                      <Loader2 className='animate-spin text-[#189089]' size={16} />
                       <span className='text-sm text-gray-500'>Cargando barrios...</span>
                     </div>
                   ) : (
@@ -539,7 +539,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                       required
                       value={formData.barrio}
                       onChange={(e) => setFormData({ ...formData, barrio: e.target.value })}
-                      className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                      className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                     >
                       <option value=''>Selecciona un barrio</option>
                       {barrios.map((barrio) => (
@@ -568,10 +568,10 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                     onFocus={() => sugerencias.length > 0 && setMostrarSugerencias(true)}
                     onBlur={() => setTimeout(() => setMostrarSugerencias(false), 200)}
                     placeholder='Pega una URL de Google Maps o escribe la dirección'
-                    className='w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                    className='w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                   />
                   {buscandoDireccion && (
-                    <Loader2 size={16} className='absolute right-3 top-1/2 -translate-y-1/2 text-purple-600 animate-spin' />
+                    <Loader2 size={16} className='absolute right-3 top-1/2 -translate-y-1/2 text-[#189089] animate-spin' />
                   )}
                   {direccionEncontrada && !buscandoDireccion && (
                     <MapPin size={16} className='absolute right-3 top-1/2 -translate-y-1/2 text-green-500' />
@@ -595,10 +595,10 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                           key={sugerencia.placeId}
                           type='button'
                           onClick={() => seleccionarSugerencia(sugerencia)}
-                          className='w-full text-left px-4 py-3 hover:bg-purple-50 border-b border-gray-100 last:border-0 transition-colors'
+                          className='w-full text-left px-4 py-3 hover:bg-[#189089]/10 border-b border-gray-100 last:border-0 transition-colors'
                         >
                           <div className='flex items-start gap-2'>
-                            <MapPin size={14} className='text-purple-600 mt-0.5 flex-shrink-0' />
+                            <MapPin size={14} className='text-[#189089] mt-0.5 flex-shrink-0' />
                             <span className='text-sm text-gray-700 line-clamp-2'>
                               {sugerencia.displayName}
                             </span>
@@ -621,7 +621,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                     onClick={() => setMapaInteractivo(!mapaInteractivo)}
                     className={`text-xs font-medium px-3 py-1 rounded-full transition-all ${
                       mapaInteractivo
-                        ? 'bg-purple-600 text-white shadow-md'
+                        ? 'bg-[#189089] text-white shadow-md'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -635,8 +635,8 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                   onMapClick={handleMapClick}
                 />
                 {mapaInteractivo && (
-                  <p className='text-xs text-purple-600 mt-1 font-medium flex items-center gap-1'>
-                    <span className='inline-block w-1.5 h-1.5 bg-purple-600 rounded-full animate-pulse' />
+                  <p className='text-xs text-[#189089] mt-1 font-medium flex items-center gap-1'>
+                    <span className='inline-block w-1.5 h-1.5 bg-[#189089] rounded-full animate-pulse' />
                     Navega por el mapa y haz clic para colocar el marcador
                   </p>
                 )}
@@ -673,7 +673,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                     >
                       <span className='text-2xl sm:text-3xl'>
                         {rating <= formData.safetyRating ? (
-                          <ShieldCheck className='text-purple-600' size={28} />
+                          <ShieldCheck className='text-[#189089]' size={28} />
                         ) : (
                           <Shield className='text-gray-300' size={28} />
                         )}
@@ -700,7 +700,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   placeholder='ej: +57 300 123 4567'
-                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                 />
               </div>
 
@@ -711,7 +711,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                   value={formData.website}
                   onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                   placeholder='ej: www.milugar.com'
-                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                 />
               </div>
 
@@ -724,7 +724,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                   value={formData.hours}
                   onChange={(e) => setFormData({ ...formData, hours: e.target.value })}
                   placeholder='ej: Lun-Dom: 8AM - 10PM'
-                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600'
+                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089]'
                 />
               </div>
 
@@ -734,7 +734,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                     type='checkbox'
                     checked={formData.lgbtiqFriendly}
                     onChange={(e) => setFormData({ ...formData, lgbtiqFriendly: e.target.checked })}
-                    className='w-4 h-4 rounded border-gray-300 text-purple-600'
+                    className='w-4 h-4 rounded border-gray-300 text-[#189089]'
                   />
                   <span className='font-semibold text-gray-900'>
                     Este lugar es LGBTIQ+ Friendly ✨
@@ -762,7 +762,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                         value={link}
                         onChange={(e) => updateSocialLink(index, e.target.value)}
                         placeholder='ej: https://instagram.com/milugar'
-                        className='flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-sm'
+                        className='flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#189089] text-sm'
                       />
                       <button
                         type='button'
@@ -779,7 +779,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                 <button
                   type='button'
                   onClick={addSocialLink}
-                  className='mt-2 flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-600 hover:bg-purple-50 rounded-lg transition-colors border border-dashed border-purple-300 w-full justify-center'
+                  className='mt-2 flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#189089] hover:bg-[#189089]/10 rounded-lg transition-colors border border-dashed border-[#189089]/30 w-full justify-center'
                 >
                   <Plus size={16} />
                   Agregar red social
@@ -801,13 +801,13 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                 {accessibilityOptions.map((option) => (
                   <label
                     key={option}
-                    className='flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-purple-50 cursor-pointer transition-colors'
+                    className='flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-[#189089]/10 cursor-pointer transition-colors'
                   >
                     <input
                       type='checkbox'
                       checked={formData.accessibility.includes(option)}
                       onChange={() => handleAccessibilityToggle(option)}
-                      className='w-4 h-4 rounded border-gray-300 text-purple-600'
+                      className='w-4 h-4 rounded border-gray-300 text-[#189089]'
                     />
                     <span className='text-sm text-gray-700'>{option}</span>
                   </label>
@@ -861,9 +861,9 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
                   type='button'
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingPhotos}
-                  className='w-full border-2 border-dashed border-purple-300 rounded-xl p-6 text-center hover:border-purple-500 hover:bg-purple-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                  className='w-full border-2 border-dashed border-[#189089]/30 rounded-xl p-6 text-center hover:border-[#189089] hover:bg-[#189089]/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
                 >
-                  <Upload size={32} className='mx-auto text-purple-400 mb-2' />
+                  <Upload size={32} className='mx-auto text-[#189089]/60 mb-2' />
                   <p className='text-sm font-semibold text-gray-700'>
                     Haz clic para agregar fotos o videos
                   </p>
@@ -968,7 +968,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
           {step < 3 ? (
             <button
               onClick={() => setStep(step + 1)}
-              className='flex-1 min-w-[100px] px-3 sm:px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold text-xs sm:text-base hover:shadow-lg transition-shadow'
+              className='flex-1 min-w-[100px] px-3 sm:px-6 py-2 bg-gradient-to-r from-[#189089] to-[#154280] text-white rounded-lg font-semibold text-xs sm:text-base hover:shadow-lg transition-shadow'
               title='Ir al siguiente paso'
             >
               Siguiente →
@@ -976,7 +976,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
           ) : step === 3 ? (
             <button
               onClick={() => setStep(4)}
-              className='flex-1 min-w-[100px] px-3 sm:px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold text-xs sm:text-base hover:shadow-lg transition-shadow'
+              className='flex-1 min-w-[100px] px-3 sm:px-6 py-2 bg-gradient-to-r from-[#189089] to-[#154280] text-white rounded-lg font-semibold text-xs sm:text-base hover:shadow-lg transition-shadow'
               title='Ir al siguiente paso'
             >
               Siguiente →
@@ -994,7 +994,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
               <button
                 onClick={handleCreatePlace}
                 disabled={isProcessing}
-                className='flex-1 min-w-[100px] px-3 sm:px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold text-xs sm:text-base hover:shadow-lg transition-shadow flex items-center justify-center gap-2 disabled:opacity-50'
+                className='flex-1 min-w-[100px] px-3 sm:px-6 py-2 bg-gradient-to-r from-[#189089] to-[#25204b] text-white rounded-lg font-semibold text-xs sm:text-base hover:shadow-lg transition-shadow flex items-center justify-center gap-2 disabled:opacity-50'
                 title='Crear lugar y subir fotos'
               >
                 {creatingPlace ? (
@@ -1021,7 +1021,7 @@ export default function AddPlaceForm({ isOpen, onClose, onAddPlace }: AddPlaceFo
               <button
                 onClick={handleClose}
                 disabled={uploadingPhotos}
-                className='flex-1 min-w-[100px] px-3 sm:px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold text-xs sm:text-base hover:shadow-lg transition-shadow disabled:opacity-50'
+                className='flex-1 min-w-[100px] px-3 sm:px-6 py-2 bg-gradient-to-r from-[#189089] to-[#25204b] text-white rounded-lg font-semibold text-xs sm:text-base hover:shadow-lg transition-shadow disabled:opacity-50'
                 title='Finalizar'
               >
                 {uploadingPhotos ? (

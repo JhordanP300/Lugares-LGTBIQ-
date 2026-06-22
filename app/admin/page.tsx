@@ -51,7 +51,7 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className='flex items-center justify-center py-20'>
-        <Loader2 className='animate-spin text-purple-600' size={40} />
+        <Loader2 className='animate-spin text-[#189089]' size={40} />
       </div>
     );
   }
@@ -91,22 +91,22 @@ export default function AdminDashboard() {
       label: 'Usuarios Totales',
       value: stats.users.total,
       icon: Users,
-      color: 'bg-purple-500',
-      bgColor: 'bg-purple-50',
+      color: 'bg-[#631e5b]',
+      bgColor: 'bg-[#631e5b]/10',
     },
     {
       label: 'Comentarios',
       value: stats.comments,
       icon: MessageSquare,
-      color: 'bg-pink-500',
-      bgColor: 'bg-pink-50',
+      color: 'bg-[#c42e89]',
+      bgColor: 'bg-[#c42e89]/10',
     },
     {
       label: 'Fotos',
       value: stats.photos,
       icon: Heart,
-      color: 'bg-indigo-500',
-      bgColor: 'bg-indigo-50',
+      color: 'bg-[#154280]',
+      bgColor: 'bg-[#154280]/10',
     },
   ];
 
