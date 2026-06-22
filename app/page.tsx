@@ -142,14 +142,14 @@ export default function Home() {
             <div className='space-y-2'>
               <button
                 onClick={() => router.push('/auth/register')}
-                className='w-full flex items-center justify-center gap-2 py-2 px-4 bg-[#154280] text-white rounded-lg text-sm font-semibold hover:shadow-lg transition-shadow'
+                className='w-full flex items-center justify-center gap-2 py-2 px-4 bg-[#154280] text-white rounded-lg text-sm font-semibold hover:shadow-lg hover:scale-[1.02] transition-all'
               >
                 <UserPlus size={16} />
                 Regístrate
               </button>
               <button
                 onClick={() => router.push('/auth/login')}
-                className='w-full flex items-center justify-center gap-2 py-2 px-4 border border-[#189089] text-[#189089] rounded-lg text-sm font-semibold hover:bg-[#189089]/10 transition-colors'
+                className='w-full flex items-center justify-center gap-2 py-2 px-4 border border-[#189089] text-[#189089] rounded-lg text-sm font-semibold hover:bg-[#189089]/10 hover:scale-[1.02] transition-all'
               >
                 <LogIn size={16} />
                 Iniciar sesión
@@ -256,7 +256,7 @@ export default function Home() {
                 setIsAddPlaceOpen(true);
                 setSidebarOpen(false);
               }}
-              className='w-full bg-[#c42e89] text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow flex items-center justify-center gap-2'
+              className='w-full bg-[#c42e89] text-white py-3 rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] transition-all flex items-center justify-center gap-2'
             >
               <Plus size={20} />
               Enviar Solicitud de Lugar
