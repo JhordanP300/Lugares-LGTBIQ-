@@ -359,7 +359,7 @@ export default function Home() {
             </div>
             <div className='p-6 space-y-4'>
               <p className='text-gray-700 text-center'>
-                Un espacio para encontrar y compartir <strong>lugares seguros</strong> para la comunidad LGBTIQ+ en el Valle de Aburrá.
+                Un espacio para encontrar y compartir <strong>lugares seguros</strong> para la comunidad LGBTIQ+ en Medellín.
               </p>
               <div className='bg-[#189089]/10 rounded-lg p-4 space-y-2'>
                 <p className='text-sm text-gray-700'>🗺️ <strong>Explora</strong> el mapa para descubrir lugares cercanos</p>

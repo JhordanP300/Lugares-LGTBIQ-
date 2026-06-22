@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "🌈 Lugares Seguros - LGBTIQ+ en Medellín",
-  description: "Plataforma para encontrar espacios seguros para la comunidad LGBTIQ+ en el Valle de Aburrá, Medellín. Comparte tu experiencia con fotos y comentarios.",
+  title: "🌈 Espacios para existir - LGBTIQ+ en Medellín",
+  description: "Plataforma para encontrar espacios seguros para la comunidad LGBTIQ+ en Medellín. Comparte tu experiencia con fotos y comentarios.",
   keywords: ["LGBTIQ+", "Medellín", "lugares seguros", "inclusión", "comunidad"],
   authors: [{ name: "Proyecto de Grado" }],
 };
