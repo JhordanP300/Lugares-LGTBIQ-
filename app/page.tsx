@@ -96,7 +96,7 @@ export default function Home() {
         } md:translate-x-0`}
       >
         {/* Header del Sidebar */}
-        <div className='bg-[#189089] p-6 text-white'>
+        <div className='bg-[white] p-6 text-white'>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src='https://res.cloudinary.com/dopa1ol1d/image/upload/q_auto/f_auto/v1782083784/oikos_u1rl59.png' alt='Oikos' className='h-16 mb-2' />
         </div>
